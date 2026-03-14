@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{PROJECT_NAME}} - {{TASK_NAME}} 디자인 시안</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css');
+  body { font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif; background:#F8FAFC; color:#1E293B; }
+  .card { background:#fff; border-radius:16px; border:1px solid #E2E8F0; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+  .mobile-frame { width:340px; min-height:560px; border-radius:24px; border:6px solid #1E293B; overflow:hidden; background:#F8FAFC; flex-shrink:0; }
+  .tag { display:inline-block; padding:2px 10px; border-radius:9999px; font-size:11px; font-weight:600; }
+  .tab-btn { padding:8px 20px; font-size:13px; font-weight:500; border-radius:8px 8px 0 0; cursor:pointer; border:1px solid transparent; transition:all 0.2s; }
+  .tab-btn.active { background:#fff; border-color:#E2E8F0; border-bottom-color:#fff; color:#4F46E5; font-weight:600; }
+  .tab-btn:not(.active) { background:#F1F5F9; color:#64748B; }
+  .tab-btn:not(.active):hover { background:#E2E8F0; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+  .ba-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .ba-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:4px 12px; border-radius:6px; display:inline-block; margin-bottom:12px; }
+  .ba-before { background:#FEE2E2; color:#991B1B; }
+  .ba-after { background:#D1FAE5; color:#065F46; }
+  .highlight-change { outline:2px dashed #F59E0B; outline-offset:4px; border-radius:8px; }
+  .verdict-approve { background:#D1FAE5; border:1px solid #6EE7B7; }
+  .verdict-improve { background:#FEF3C7; border:1px solid #FCD34D; }
+</style>
+</head>
+<body>
+
+<div class="max-w-[1100px] mx-auto px-6 py-10">
+
+  <!-- Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="tag bg-purple-100 text-purple-700">디자인 시안</span>
+      <span class="text-xs text-slate-400">{{DATE}}</span>
+      {{VERSION_BADGE}}
+      <!-- 형식: <span class="tag bg-slate-100 text-slate-500">v2</span> -->
+    </div>
+    <h1 class="text-3xl font-bold mb-2">{{TASK_NAME}}</h1>
+    <p class="text-sm text-slate-500">{{TASK_SUMMARY}}</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="flex gap-1 mb-0 border-b border-slate-200">
+    <button class="tab-btn active" onclick="switchTab('summary')">전체 요약</button>
+    <button class="tab-btn" onclick="switchTab('ba')">Before / After</button>
+    <button class="tab-btn" onclick="switchTab('full')">전체 개선안</button>
+    <!-- 필요 시 추가 탭 -->
+  </div>
+
+  <div class="card rounded-t-none border-t-0 p-6">
+
+    <!-- 탭 1: 전체 요약 -->
+    <div id="tab-summary" class="tab-content active">
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+          <h3 class="text-xs uppercase tracking-wider text-emerald-700 font-semibold mb-3">긍정 사항</h3>
+          <ul class="text-sm text-emerald-900 space-y-2">
+            {{POSITIVES}}
+            <!-- 형식: <li>✓ 긍정 포인트</li> -->
+          </ul>
+        </div>
+        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200">
+          <h3 class="text-xs uppercase tracking-wider text-amber-700 font-semibold mb-3">개선 사항</h3>
+          <ul class="text-sm text-amber-900 space-y-2">
+            {{IMPROVEMENTS}}
+            <!-- 형식: <li>△ 개선 포인트</li> -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- 최종 판정 -->
+      <div class="{{VERDICT_CLASS}} rounded-xl p-4">
+        {{VERDICT_CONTENT}}
+        <!-- 형식:
+        <p class="font-semibold text-sm">최종 판정: 개선 적용 권장</p>
+        <p class="text-xs mt-1">근거 설명</p>
+        -->
+      </div>
+    </div>
+
+    <!-- 탭 2: Before / After -->
+    <div id="tab-ba" class="tab-content">
+      {{BA_SECTIONS}}
+      <!-- 형식:
+      <div class="mb-10">
+        <h3 class="text-sm font-semibold mb-4">변경 포인트: 제목</h3>
+        <div class="ba-grid">
+          <div>
+            <span class="ba-label ba-before">Before</span>
+            <div class="card p-4">
+              CSS로 현재 상태 재현
+            </div>
+          </div>
+          <div>
+            <span class="ba-label ba-after">After</span>
+            <div class="card p-4">
+              <div class="highlight-change">CSS로 개선안 재현</div>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 mt-3">변경 설명</p>
+      </div>
+      -->
+    </div>
+
+    <!-- 탭 3: 전체 개선안 목업 -->
+    <div id="tab-full" class="tab-content">
+      <div class="flex gap-6 overflow-x-auto pb-4">
+        {{FULL_MOCKUPS}}
+        <!-- 형식:
+        <div>
+          <p class="text-xs font-semibold text-slate-600 mb-2 text-center">화면명</p>
+          <div class="mobile-frame p-4">
+            CSS/div로 전체 개선안 목업
+          </div>
+        </div>
+        -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Next -->
+  <div class="card p-5 mt-6">
+    <p class="text-xs uppercase tracking-wider text-purple-600 font-semibold mb-3">Next</p>
+    <div class="space-y-2 text-sm">
+      <p><code class="text-xs bg-slate-100 px-2 py-1 rounded">/experiment:dev {{TASK_ID}}</code> 승인 후 백그라운드에서 구현 시작</p>
+      <p><code class="text-xs bg-slate-100 px-2 py-1 rounded">/experiment:do</code> 간단한 수정은 직접 위임</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

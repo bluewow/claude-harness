@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Dashboard</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif;
+    background: #F8FAFC;
+    color: #1E293B;
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  /* ── Dark Mode ── */
+  body.dark {
+    background: #0F172A;
+    color: #F1F5F9;
+  }
+  body.dark .sidebar-card {
+    background: #1E293B;
+    border-color: #334155;
+  }
+  body.dark .kpi-cell:first-child { border-right-color: #334155; }
+  body.dark .kpi-row { border-bottom-color: #334155; }
+  body.dark .kpi-label { color: #94A3B8; }
+  body.dark #kpi-total { color: #F1F5F9 !important; }
+  body.dark #kpi-done { color: #34D399 !important; }
+  body.dark .progress-bar { background: #334155; }
+  body.dark .progress-pct { color: #34D399; }
+  body.dark .chart-title { color: #64748B; }
+  body.dark .bar-label { color: #64748B; }
+  body.dark .bar-track { background: #334155; }
+  body.dark .table-container {
+    background: #1E293B;
+    border-color: #334155;
+  }
+  body.dark .table-header { border-bottom-color: #334155; }
+  body.dark .data-table th { border-bottom-color: #334155; color: #94A3B8; }
+  body.dark .data-table th:hover { color: #CBD5E1; }
+  body.dark .data-table th.sorted .sort-arrow { color: #F1F5F9; }
+  body.dark .data-table td { border-bottom-color: #334155; }
+  body.dark .data-table tbody tr:hover td { background: #0F172A; }
+  body.dark .task-id { color: #94A3B8; }
+  body.dark .task-date { color: #94A3B8; }
+  body.dark .search-input {
+    background: #0F172A;
+    border-color: #334155;
+    color: #F1F5F9;
+  }
+  body.dark .search-input:focus { border-color: #64748B; }
+  body.dark .phase-select {
+    background: #0F172A;
+    border-color: #334155;
+    color: #F1F5F9;
+  }
+  body.dark .cmd-card {
+    background: #1E293B;
+    border-color: #334155;
+  }
+  body.dark .cmd-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  body.dark .cmd-desc { color: #94A3B8; }
+  body.dark .cmd-detail { color: #CBD5E1; }
+  body.dark .cmd-example { background: #0F172A; color: #94A3B8; }
+  body.dark .empty-state p.title { color: #94A3B8; }
+  body.dark .error-state p { color: #94A3B8; }
+
+  /* Layout */
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+
+  /* Page Header with theme toggle */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .page-title { font-size: 20px; font-weight: 700; }
+
+  /* Guide Button */
+  .guide-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #EEF2FF;
+    color: #4F46E5;
+    border: 1px solid #C7D2FE;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    font-family: inherit;
+  }
+  .guide-btn:hover { opacity: 0.85; }
+  body.dark .guide-btn {
+    background: #1E3A5F;
+    color: #93C5FD;
+    border-color: #1D4ED8;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .theme-toggle-icon { font-size: 14px; line-height: 1; }
+  .toggle-switch {
+    width: 28px;
+    height: 14px;
+    border-radius: 7px;
+    background: #E2E8F0;
+    position: relative;
+    transition: background 0.2s;
+  }
+  body.dark .toggle-switch { background: #3B82F6; }
+  .toggle-knob {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: all 0.2s;
+  }
+  body.dark .toggle-knob { left: 16px; }
+
+  .main-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+
+  /* Sidebar */
+  .sidebar { display: flex; flex-direction: column; gap: 12px; }
+  .sidebar-card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #E2E8F0;
+    padding: 18px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  /* KPI */
+  .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .kpi-cell { text-align: center; padding: 16px; }
+  .kpi-cell:first-child { border-right: 1px solid #F1F5F9; }
+  .kpi-row { border-bottom: 1px solid #F1F5F9; margin-bottom: 12px; }
+  .kpi-number { font-size: 28px; font-weight: 800; line-height: 1; }
+  .kpi-label { font-size: 10px; color: #94A3B8; margin-top: 4px; letter-spacing: 0.03em; }
+
+  /* Progress Bar */
+  .progress-wrap { display: flex; align-items: center; gap: 10px; padding: 0 12px; }
+  .progress-bar { flex: 1; height: 8px; border-radius: 3px; background: #E2E8F0; overflow: hidden; transition: background 0.2s; }
+  .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #10B981, #34D399); }
+  .progress-pct { font-size: 12px; font-weight: 700; color: #10B981; }
+
+  /* Bar Chart */
+  .chart-title { font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 12px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-label { font-size: 11px; font-weight: 500; width: 52px; color: #64748B; }
+  .bar-track { flex: 1; height: 20px; border-radius: 6px; background: #F1F5F9; overflow: hidden; transition: background 0.2s; }
+  .bar-fill {
+    height: 100%; border-radius: 6px;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding-right: 6px; font-size: 9px; color: #fff; font-weight: 600;
+    min-width: 20px; transition: width 0.3s;
+  }
+
+  /* Table Container */
+  .table-container {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .table-header {
+    padding: 16px 18px;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color 0.2s;
+  }
+  .table-title { font-size: 14px; font-weight: 600; }
+  .table-controls { display: flex; gap: 6px; }
+  .search-input {
+    font-size: 11px; padding: 4px 10px;
+    border: 1px solid #E2E8F0; border-radius: 6px;
+    outline: none; width: 140px;
+    font-family: inherit;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .search-input:focus { border-color: #94A3B8; }
+  .phase-select {
+    font-size: 11px; padding: 4px 8px;
+    border: 1px solid #E2E8F0; border-radius: 6px;
+    color: #64748B; outline: none; background: #fff;
+    font-family: inherit; cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+
+  /* Data Table */
+  .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .data-table th {
+    font-size: 11px; font-weight: 600; color: #94A3B8;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 10px 14px; text-align: left;
+    border-bottom: 2px solid #E2E8F0;
+    cursor: pointer; user-select: none;
+    white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .data-table th:hover { color: #64748B; }
+  .data-table th .sort-arrow { font-size: 9px; margin-left: 2px; opacity: 0.4; }
+  .data-table th.sorted .sort-arrow { opacity: 1; color: #1E293B; }
+  .data-table td {
+    font-size: 13px; padding: 12px 14px;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
+    transition: border-color 0.2s;
+  }
+  .data-table tbody tr:hover td { background: #F8FAFC; }
+  .data-table tbody tr.completed { opacity: 0.5; }
+
+  .task-name { font-weight: 500; }
+  .task-id { font-size: 10px; color: #94A3B8; font-family: monospace; }
+  .task-date { font-size: 11px; color: #94A3B8; }
+
+  /* Phase Badge */
+  .phase-badge {
+    font-size: 10px; font-weight: 600;
+    padding: 3px 8px; border-radius: 5px;
+    display: inline-block;
+  }
+
+  /* Artifact Links */
+  .artifact-links { display: flex; gap: 3px; flex-wrap: wrap; }
+  .artifact-link {
+    font-size: 11px; padding: 3px 8px;
+    border-radius: 4px; font-weight: 600;
+    text-decoration: none; transition: opacity 0.15s;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 2px;
+  }
+  .artifact-link:hover { opacity: 0.8; }
+
+  /* Artifact type colors */
+  .artifact-link.type-idea     { background: #F5F3FF; color: #7C3AED; }
+  .artifact-link.type-design   { background: #EFF6FF; color: #2563EB; }
+  .artifact-link.type-brief    { background: #ECFDF5; color: #059669; }
+  .artifact-link.type-complete { background: #FEF3C7; color: #D97706; }
+
+  /* Multi-file count badge */
+  .artifact-count-badge {
+    display: inline-block;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 0 4px;
+    border-radius: 3px;
+    margin-left: 3px;
+    vertical-align: middle;
+    color: #fff;
+  }
+  .type-idea .artifact-count-badge    { background: #7C3AED; }
+  .type-design .artifact-count-badge  { background: #2563EB; }
+  .type-brief .artifact-count-badge   { background: #059669; }
+  .type-complete .artifact-count-badge { background: #D97706; }
+
+  /* Artifact list modal inner */
+  .artifact-list-modal {
+    width: 320px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+    overflow: hidden;
+  }
+  body.dark .artifact-list-modal {
+    background: #1E293B;
+    border-color: #334155;
+  }
+  .artifact-list-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  body.dark .artifact-list-header { border-bottom-color: #334155; }
+  .artifact-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid #F8FAFC;
+    transition: background 0.1s;
+    cursor: default;
+  }
+  .artifact-list-item:last-child { border-bottom: none; }
+  .artifact-list-item:hover { background: #F8FAFC; }
+  body.dark .artifact-list-item:hover { background: #0F172A; }
+  body.dark .artifact-list-item { border-bottom-color: #334155; }
+  .artifact-list-open {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 5px;
+    border: 1px solid;
+    cursor: pointer;
+    background: transparent;
+    font-family: inherit;
+    transition: opacity 0.15s;
+  }
+  .artifact-list-open:hover { opacity: 0.75; }
+
+  /* Command Guide (empty-state only) */
+  .cmd-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .cmd-header h3 { font-size: 15px; font-weight: 700; }
+  .cmd-header span { font-size: 10px; color: #94A3B8; }
+  .cmd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .cmd-card {
+    background: #fff; border-radius: 12px;
+    border: 1px solid #E2E8F0; padding: 16px;
+    transition: box-shadow 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .cmd-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .cmd-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .cmd-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; flex-shrink: 0;
+  }
+  .cmd-name { font-size: 14px; font-weight: 700; font-family: monospace; }
+  .cmd-desc { font-size: 12px; color: #64748B; }
+  .cmd-detail { font-size: 11px; color: #475569; line-height: 1.5; }
+  .cmd-example {
+    font-size: 11px; font-family: monospace; color: #94A3B8;
+    background: #F8FAFC; padding: 4px 8px; border-radius: 6px;
+    margin-top: 6px; display: inline-block;
+    transition: background 0.2s;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center; padding: 80px 20px 32px; color: #94A3B8;
+  }
+  .empty-state p.title { font-size: 18px; font-weight: 600; color: #64748B; margin-bottom: 8px; }
+  .empty-state p.sub { font-size: 13px; margin-bottom: 32px; }
+
+  /* Error State */
+  .error-state { text-align: center; padding: 80px 20px; color: #94A3B8; }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.6);
+  }
+  body.dark .modal-overlay { background: rgba(0, 0, 0, 0.7); }
+  .modal-container {
+    width: 90%;
+    max-width: 720px;
+    max-height: 80vh;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #FFFFFF;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    transition: max-width 0.25s ease, max-height 0.25s ease;
+  }
+  .modal-container.expanded {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+  body.dark .modal-container {
+    background: #1E293B;
+    border: 1px solid #334155;
+  }
+  .modal-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  body.dark .modal-header { border-bottom-color: #334155; }
+  .modal-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .modal-type-badge {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .modal-task-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1E293B;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  body.dark .modal-task-name { color: #F1F5F9; }
+  .modal-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .modal-open-tab {
+    font-size: 11px;
+    color: #3B82F6;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .modal-open-tab:hover { text-decoration: underline; }
+  .modal-close-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: none;
+    background: #F1F5F9;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #64748B;
+    line-height: 1;
+  }
+  body.dark .modal-close-btn { background: #334155; color: #94A3B8; }
+  .modal-close-btn:hover { opacity: 0.8; }
+  .modal-expand-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: none;
+    background: #F1F5F9;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #64748B;
+    line-height: 1;
+  }
+  body.dark .modal-expand-btn { background: #334155; color: #94A3B8; }
+  .modal-expand-btn:hover { opacity: 0.8; }
+  .modal-body {
+    padding: 18px;
+    max-height: calc(80vh - 56px);
+    overflow-y: auto;
+    transition: max-height 0.25s ease;
+  }
+  .modal-container.expanded .modal-body {
+    max-height: calc(95vh - 56px);
+  }
+  .modal-body iframe {
+    width: 100%;
+    height: calc(80vh - 56px);
+    border: none;
+  }
+
+  /* Markdown rendering in modal */
+  .md-content { font-size: 12px; line-height: 1.8; color: #334155; }
+  body.dark .md-content { color: #CBD5E1; }
+  .md-content h1 { font-size: 16px; font-weight: 700; margin: 16px 0 8px; color: #1E293B; }
+  body.dark .md-content h1 { color: #F1F5F9; }
+  .md-content h2 { font-size: 14px; font-weight: 600; margin: 14px 0 6px; color: #1E293B; }
+  body.dark .md-content h2 { color: #F1F5F9; }
+  .md-content h3 {
+    font-size: 13px; font-weight: 600; margin: 12px 0 6px; color: #1E293B;
+    padding-bottom: 4px; border-bottom: 1px solid #F1F5F9;
+  }
+  body.dark .md-content h3 { color: #F1F5F9; border-bottom-color: #334155; }
+  .md-content ul { padding-left: 16px; margin: 4px 0; }
+  .md-content li { margin: 2px 0; }
+  .md-content strong { font-weight: 600; }
+  .md-content code {
+    font-size: 11px; font-family: monospace;
+    background: #F8FAFC; padding: 1px 4px; border-radius: 3px;
+  }
+  body.dark .md-content code { background: #0F172A; }
+  .md-content pre {
+    font-size: 11px; font-family: monospace;
+    background: #F8FAFC; padding: 8px 12px; border-radius: 6px;
+    overflow-x: auto; margin: 8px 0;
+  }
+  body.dark .md-content pre { background: #0F172A; }
+  .md-content pre code { background: none; padding: 0; }
+  .md-content blockquote {
+    border-left: 3px solid #E2E8F0; padding-left: 12px;
+    color: #64748B; margin: 8px 0;
+  }
+  body.dark .md-content blockquote { border-left-color: #334155; color: #94A3B8; }
+  .md-content .meta { font-size: 11px; color: #94A3B8; }
+
+  /* ── Guide Modal — Tab Structure ── */
+
+  /* Tab Bar */
+  .guide-tab-bar {
+    display: flex;
+    border-bottom: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    padding: 0 20px;
+    flex-shrink: 0;
+  }
+  body.dark .guide-tab-bar {
+    background: #1E293B;
+    border-bottom-color: #334155;
+  }
+  .guide-modal-tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748B;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+    transition: color 0.15s, border-bottom-color 0.15s;
+    margin-bottom: -1px;
+  }
+  .guide-modal-tab:hover { color: #4F46E5; }
+  .guide-modal-tab.active {
+    color: #4F46E5;
+    font-weight: 600;
+    border-bottom-color: #4F46E5;
+    background: #fff;
+  }
+  body.dark .guide-modal-tab { color: #64748B; }
+  body.dark .guide-modal-tab:hover { color: #818CF8; }
+  body.dark .guide-modal-tab.active {
+    color: #818CF8;
+    border-bottom-color: #818CF8;
+    background: #0F172A;
+  }
+
+  /* Tab Content Panels */
+  .guide-tab-panel { display: none; padding: 24px; overflow-y: auto; max-height: calc(80vh - 110px); }
+  .guide-tab-panel.active { display: block; }
+
+  /* Section label */
+  .guide-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+
+  /* ── Tab 1: Workflow ── */
+  .guide-flow-main {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 20px;
+  }
+  .guide-flow-step {
+    flex: 1;
+    border-radius: 12px;
+    border: 1.5px solid;
+    padding: 16px;
+    position: relative;
+  }
+  .guide-flow-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  .guide-flow-arrow::after {
+    content: '';
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: #CBD5E1;
+    position: relative;
+  }
+  .guide-flow-arrow::before {
+    content: '›';
+    font-size: 20px;
+    color: #CBD5E1;
+    line-height: 1;
+    margin-left: -4px;
+  }
+  body.dark .guide-flow-arrow::after { background: #334155; }
+  body.dark .guide-flow-arrow::before { color: #334155; }
+  .guide-step-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    opacity: 0.75;
+  }
+  .guide-step-cmd {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: monospace;
+    margin-bottom: 4px;
+  }
+  .guide-step-role {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .guide-step-detail {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.55;
+    opacity: 0.8;
+    margin-bottom: 8px;
+  }
+  .guide-step-example {
+    font-size: 10px;
+    font-family: monospace;
+    background: rgba(0,0,0,0.06);
+    padding: 3px 7px;
+    border-radius: 5px;
+    display: inline-block;
+  }
+  body.dark .guide-step-example { background: rgba(255,255,255,0.07); }
+
+  /* /do branch section */
+  .guide-do-section {
+    border-top: 1px dashed #E2E8F0;
+    padding-top: 18px;
+    margin-top: 4px;
+  }
+  body.dark .guide-do-section { border-top-color: #334155; }
+  .guide-do-or {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94A3B8;
+    margin-bottom: 12px;
+  }
+  .guide-do-card {
+    border-radius: 12px;
+    padding: 14px 18px;
+    background: #FFFBEB;
+    border: 1.5px solid #FDE68A;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  body.dark .guide-do-card {
+    background: #1C1917;
+    border-color: #78350F;
+  }
+  .guide-do-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: #FEF3C7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: #D97706;
+    flex-shrink: 0;
+    font-family: monospace;
+  }
+  body.dark .guide-do-icon { background: #292524; color: #F59E0B; }
+  .guide-do-cmd {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: monospace;
+    color: #92400E;
+    margin-bottom: 2px;
+  }
+  body.dark .guide-do-cmd { color: #F59E0B; }
+  .guide-do-role {
+    font-size: 12px;
+    font-weight: 600;
+    color: #B45309;
+    margin-bottom: 4px;
+  }
+  body.dark .guide-do-role { color: #D97706; }
+  .guide-do-detail {
+    font-size: 11px;
+    color: #92400E;
+    line-height: 1.5;
+    opacity: 0.85;
+  }
+  body.dark .guide-do-detail { color: #CA8A04; }
+  .guide-do-example {
+    font-size: 10px;
+    font-family: monospace;
+    background: rgba(0,0,0,0.06);
+    padding: 3px 7px;
+    border-radius: 5px;
+    display: inline-block;
+    color: #92400E;
+    margin-top: 4px;
+  }
+  body.dark .guide-do-example { background: rgba(255,255,255,0.07); color: #CA8A04; }
+
+  /* ── Tab 2: Commands ── */
+  .guide-cmd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .guide-cmd-card {
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #E2E8F0;
+    background: #fff;
+    transition: box-shadow 0.2s;
+  }
+  body.dark .guide-cmd-card {
+    background: #0F172A;
+    border-color: #334155;
+  }
+  .guide-cmd-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  body.dark .guide-cmd-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .guide-cmd-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .guide-cmd-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+  .guide-cmd-name {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: monospace;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .guide-cmd-role {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748B;
+  }
+  body.dark .guide-cmd-role { color: #94A3B8; }
+  .guide-cmd-desc {
+    font-size: 11px;
+    color: #475569;
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  body.dark .guide-cmd-desc { color: #94A3B8; }
+  .guide-cmd-usage-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748B;
+    margin-bottom: 4px;
+  }
+  body.dark .guide-cmd-usage-label { color: #64748B; }
+  .guide-cmd-example {
+    font-size: 10px;
+    font-family: monospace;
+    background: #F8FAFC;
+    color: #475569;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  body.dark .guide-cmd-example { background: #1E293B; color: #94A3B8; }
+
+  /* ── Tab 3: Artifacts ── */
+  .guide-artifact-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px dashed #E2E8F0;
+  }
+  .guide-artifact-row:first-child { border-top: none; padding-top: 0; }
+  body.dark .guide-artifact-row { border-top-color: #334155; }
+  .guide-artifact-cmd-badge {
+    font-size: 12px;
+    font-weight: 700;
+    font-family: monospace;
+    border-radius: 8px;
+    padding: 6px 14px;
+    flex-shrink: 0;
+    min-width: 64px;
+    text-align: center;
+  }
+  .guide-artifact-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+  .guide-artifact-chip {
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid;
+  }
+  .guide-chip-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .guide-chip-name {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: monospace;
+  }
+  .guide-chip-desc {
+    font-size: 10px;
+    font-weight: 400;
+    opacity: 0.75;
+    margin-top: 1px;
+  }
+  .guide-path-block {
+    background: #F8FAFC;
+    border-radius: 10px;
+    border: 1px solid #E2E8F0;
+    padding: 14px 16px;
+    margin-top: 18px;
+  }
+  body.dark .guide-path-block {
+    background: #0F172A;
+    border-color: #334155;
+  }
+  .guide-path-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748B;
+    margin-bottom: 10px;
+  }
+  .guide-path-tree {
+    font-size: 11px;
+    font-family: monospace;
+    color: #475569;
+    line-height: 1.8;
+  }
+  body.dark .guide-path-tree { color: #94A3B8; }
+  .guide-path-tree .tree-dir { color: #1E293B; font-weight: 600; }
+  body.dark .guide-path-tree .tree-dir { color: #F1F5F9; }
+  .guide-path-tree .tree-file-idea    { color: #7C3AED; }
+  .guide-path-tree .tree-file-design  { color: #2563EB; }
+  .guide-path-tree .tree-file-brief   { color: #059669; }
+  .guide-path-tree .tree-file-complete { color: #D97706; }
+
+  /* /dev 힌트 버튼 — 승인대기 태스크 행에 표시 */
+  .dev-hint-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 5px;
+    background: #FFF7ED;
+    color: #EA580C;
+    border: 1.5px dashed #FDBA74;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: monospace;
+  }
+  .dev-hint-btn:hover { background: #FFEDD5; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Page Header with Theme Toggle -->
+  <div class="page-header">
+    <h1 class="page-title">Task Dashboard</h1>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button class="guide-btn" id="guide-btn">가이드</button>
+      <div class="theme-toggle" id="theme-toggle" title="테마 전환">
+        <span class="theme-toggle-icon">&#9728;</span>
+        <div class="toggle-switch">
+          <div class="toggle-knob"></div>
+        </div>
+        <span class="theme-toggle-icon">&#9790;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content (shown when tasks exist) -->
+  <div id="main-content" class="hidden">
+    <div class="main-grid">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- KPI Card -->
+        <div class="sidebar-card">
+          <div class="kpi-grid kpi-row">
+            <div class="kpi-cell">
+              <div class="kpi-number" style="color:#1E293B;" id="kpi-total">0</div>
+              <div class="kpi-label">전체 태스크</div>
+            </div>
+            <div class="kpi-cell">
+              <div class="kpi-number" style="color:#10B981;" id="kpi-done">0</div>
+              <div class="kpi-label">완료</div>
+            </div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill" style="width:0%;"></div>
+            </div>
+            <span class="progress-pct" id="progress-pct">0%</span>
+          </div>
+        </div>
+
+        <!-- Status Distribution Chart -->
+        <div class="sidebar-card">
+          <div class="chart-title">상태별 분포</div>
+          <div id="phase-chart"></div>
+        </div>
+      </div>
+
+      <!-- Task Table -->
+      <div class="table-container">
+        <div class="table-header">
+          <span class="table-title">태스크 목록</span>
+          <div class="table-controls">
+            <input type="text" class="search-input" id="search-input" placeholder="검색...">
+            <select class="phase-select" id="phase-select">
+              <option value="all">전체</option>
+              <option value="진행중">진행중</option>
+              <option value="승인대기">승인대기</option>
+              <option value="완료">완료</option>
+              <option value="폐기">폐기</option>
+            </select>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:48px;" data-sort="id">ID <span class="sort-arrow">&#9650;</span></th>
+              <th data-sort="name">태스크 <span class="sort-arrow">&#9650;</span></th>
+              <th style="width:80px;" data-sort="phase">상태 <span class="sort-arrow">&#9650;</span></th>
+              <th style="width:100px;" data-sort="date">마지막 활동 <span class="sort-arrow">&#9660;</span></th>
+              <th style="width:80px;">산출물</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+        <div id="table-empty" class="hidden" style="text-align:center; padding:40px; color:#94A3B8; font-size:13px;">
+          해당 필터에 맞는 태스크가 없습니다
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State (no tasks) -->
+  <div id="empty-state" class="hidden">
+    <div class="empty-state">
+      <p class="title">아직 태스크가 없습니다</p>
+      <p class="sub">/pm 또는 /do 명령으로 첫 태스크를 만들어 보세요</p>
+    </div>
+    <div class="cmd-header" style="margin-bottom:14px;">
+      <h3 style="font-size:15px; font-weight:700;">시작하기</h3>
+      <span style="font-size:10px; color:#94A3B8;">/init &rarr; /pm &rarr; /dev</span>
+    </div>
+    <div class="cmd-grid">
+      <div class="cmd-card">
+        <div class="cmd-card-top">
+          <div class="cmd-icon" style="background:#EEF2FF; color:#4F46E5;">1</div>
+          <div>
+            <div class="cmd-name">/init</div>
+            <div class="cmd-desc">프로젝트 스캔</div>
+          </div>
+        </div>
+        <p class="cmd-detail">프로젝트를 분석하고 <code style="font-size:10px; background:#F1F5F9; padding:1px 4px; border-radius:3px;">CLAUDE.md</code>를 생성합니다.</p>
+        <span class="cmd-example">/init</span>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-card-top">
+          <div class="cmd-icon" style="background:#F5F3FF; color:#7C3AED;">2</div>
+          <div>
+            <div class="cmd-name">/pm</div>
+            <div class="cmd-desc">기획 + 디자인</div>
+          </div>
+        </div>
+        <p class="cmd-detail">아이디어를 정리하고 시각 산출물을 만듭니다.</p>
+        <span class="cmd-example">/pm 로그인 개선하자</span>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-card-top">
+          <div class="cmd-icon" style="background:#EFF6FF; color:#2563EB;">3</div>
+          <div>
+            <div class="cmd-name">/dev</div>
+            <div class="cmd-desc">구현 (백그라운드)</div>
+          </div>
+        </div>
+        <p class="cmd-detail">brief.md를 읽고 백그라운드에서 구현합니다.</p>
+        <span class="cmd-example">/dev 003-login</span>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-card-top">
+          <div class="cmd-icon" style="background:#FEF3C7; color:#D97706;">!</div>
+          <div>
+            <div class="cmd-name">/do</div>
+            <div class="cmd-desc">빠른 작업 위임</div>
+          </div>
+        </div>
+        <p class="cmd-detail">버그 수정, 텍스트 변경 등 간단한 작업을 바로 위임합니다.</p>
+        <span class="cmd-example">/do 버그 수정해줘</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="error-state" class="error-state hidden">
+    <p style="font-size:18px; font-weight:600; color:#64748B; margin-bottom:8px;">history.json을 불러올 수 없습니다</p>
+    <p style="font-size:13px;">로컬 서버로 열어주세요: <code style="background:#F1F5F9; padding:2px 8px; border-radius:4px; font-size:12px;">npx serve .</code> (프로젝트 루트에서)</p>
+  </div>
+</div>
+
+<!-- Artifact Modal -->
+<div id="artifact-modal" class="modal-overlay hidden">
+  <div class="modal-container">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <span class="modal-type-badge" id="modal-type-badge"></span>
+        <span class="modal-task-name" id="modal-task-name"></span>
+      </div>
+      <div class="modal-header-right">
+        <a class="modal-open-tab" id="modal-open-tab">새 탭에서 열기</a>
+        <button class="modal-expand-btn" id="modal-expand-btn" title="확대/축소">⤢</button>
+        <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+      </div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Guide Modal -->
+<div id="guide-modal" class="modal-overlay hidden">
+  <div class="modal-container" style="max-width:720px;">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <span style="font-size:15px; font-weight:700;">워크플로우 가이드</span>
+        <span style="font-size:12px; color:#64748B; margin-left:8px;">전체 흐름을 한눈에</span>
+      </div>
+      <div class="modal-header-right">
+        <button class="modal-close-btn" id="guide-close-btn">&times;</button>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="guide-tab-bar">
+      <button class="guide-modal-tab active" data-tab="workflow">워크플로우</button>
+      <button class="guide-modal-tab" data-tab="commands">커맨드</button>
+      <button class="guide-modal-tab" data-tab="artifacts">산출물</button>
+    </div>
+
+    <!-- Tab 1: Workflow -->
+    <div class="guide-tab-panel active" id="guide-tab-workflow">
+      <p class="guide-section-label">메인 플로우</p>
+
+      <div class="guide-flow-main">
+        <!-- STEP 1: /init -->
+        <div class="guide-flow-step" style="background:#EEF2FF; border-color:#C7D2FE;">
+          <div class="guide-step-badge" style="color:#4F46E5;">STEP 1</div>
+          <div class="guide-step-cmd" style="color:#4F46E5;">/init</div>
+          <div class="guide-step-role" style="color:#4F46E5;">프로젝트 스캔</div>
+          <div class="guide-step-detail" style="color:#4F46E5;">프로젝트를 분석하고 CLAUDE.md와 대시보드를 초기화합니다.</div>
+          <span class="guide-step-example" style="color:#4F46E5;">/init</span>
+        </div>
+
+        <div class="guide-flow-arrow"></div>
+
+        <!-- STEP 2: /pm -->
+        <div class="guide-flow-step" style="background:#F5F3FF; border-color:#DDD6FE;">
+          <div class="guide-step-badge" style="color:#7C3AED;">STEP 2</div>
+          <div class="guide-step-cmd" style="color:#7C3AED;">/pm</div>
+          <div class="guide-step-role" style="color:#7C3AED;">기획 + 디자인</div>
+          <div class="guide-step-detail" style="color:#7C3AED;">아이디어를 정리하고 시각 산출물(idea, design, brief)을 만듭니다.</div>
+          <span class="guide-step-example" style="color:#7C3AED;">/pm 로그인 개선</span>
+        </div>
+
+        <div class="guide-flow-arrow"></div>
+
+        <!-- STEP 3: /dev -->
+        <div class="guide-flow-step" style="background:#EFF6FF; border-color:#BFDBFE;">
+          <div class="guide-step-badge" style="color:#2563EB;">STEP 3</div>
+          <div class="guide-step-cmd" style="color:#2563EB;">/dev</div>
+          <div class="guide-step-role" style="color:#2563EB;">구현 (백그라운드)</div>
+          <div class="guide-step-detail" style="color:#2563EB;">brief.md를 읽고 백그라운드에서 구현 후 complete.md를 생성합니다.</div>
+          <span class="guide-step-example" style="color:#2563EB;">/dev 003-login</span>
+        </div>
+      </div>
+
+      <!-- /do Branch -->
+      <div class="guide-do-section">
+        <div class="guide-do-or">OR — 빠른 분기</div>
+        <div class="guide-do-card">
+          <div class="guide-do-icon">/do</div>
+          <div>
+            <div class="guide-do-cmd">/do</div>
+            <div class="guide-do-role">빠른 작업 위임</div>
+            <div class="guide-do-detail">/pm·/dev 없이 바로 위임합니다. 버그 수정, 텍스트 변경 등 단발성 작업에 사용하세요.</div>
+            <span class="guide-do-example">/do 버튼 색 초록으로 바꿔줘</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Commands -->
+    <div class="guide-tab-panel" id="guide-tab-commands">
+      <p class="guide-section-label">커맨드 레퍼런스</p>
+      <div class="guide-cmd-grid">
+
+        <!-- /init -->
+        <div class="guide-cmd-card">
+          <div class="guide-cmd-card-top">
+            <div class="guide-cmd-icon" style="background:#EEF2FF; color:#4F46E5;">1</div>
+            <div>
+              <div class="guide-cmd-name" style="color:#4F46E5;">/init</div>
+              <div class="guide-cmd-role">프로젝트 스캔</div>
+            </div>
+          </div>
+          <p class="guide-cmd-desc">프로젝트 루트를 분석해 CLAUDE.md 컨텍스트 파일을 생성하고, output/ 디렉토리와 대시보드를 초기화합니다. 프로젝트 시작 시 1회 실행합니다.</p>
+          <div class="guide-cmd-usage-label">사용법</div>
+          <span class="guide-cmd-example">/init</span>
+        </div>
+
+        <!-- /pm -->
+        <div class="guide-cmd-card">
+          <div class="guide-cmd-card-top">
+            <div class="guide-cmd-icon" style="background:#F5F3FF; color:#7C3AED;">2</div>
+            <div>
+              <div class="guide-cmd-name" style="color:#7C3AED;">/pm</div>
+              <div class="guide-cmd-role">기획 + 디자인</div>
+            </div>
+          </div>
+          <p class="guide-cmd-desc">아이디어를 시각화(idea.html)하고, Before/After 목업 디자인(design.html)과 개발 입력 명세(brief.md)를 자동 생성합니다.</p>
+          <div class="guide-cmd-usage-label">사용법</div>
+          <span class="guide-cmd-example">/pm 로그인 개선하자</span>
+        </div>
+
+        <!-- /dev -->
+        <div class="guide-cmd-card">
+          <div class="guide-cmd-card-top">
+            <div class="guide-cmd-icon" style="background:#EFF6FF; color:#2563EB;">3</div>
+            <div>
+              <div class="guide-cmd-name" style="color:#2563EB;">/dev</div>
+              <div class="guide-cmd-role">구현 (백그라운드)</div>
+            </div>
+          </div>
+          <p class="guide-cmd-desc">태스크 ID를 받아 해당 brief.md를 읽고 백그라운드에서 구현합니다. 완료 시 complete.md에 변경 내역을 기록합니다.</p>
+          <div class="guide-cmd-usage-label">사용법</div>
+          <span class="guide-cmd-example">/dev 003-login</span>
+        </div>
+
+        <!-- /do -->
+        <div class="guide-cmd-card" style="border-color:#FDE68A;">
+          <div class="guide-cmd-card-top">
+            <div class="guide-cmd-icon" style="background:#FEF3C7; color:#D97706;">!</div>
+            <div>
+              <div class="guide-cmd-name" style="color:#D97706;">/do</div>
+              <div class="guide-cmd-role">빠른 작업 위임</div>
+            </div>
+          </div>
+          <p class="guide-cmd-desc">/pm·/dev 없이 자연어 지시를 바로 위임합니다. 버그 수정, 텍스트 변경, 간단한 기능 추가 등 단발성 작업에 사용합니다.</p>
+          <div class="guide-cmd-usage-label">사용법</div>
+          <span class="guide-cmd-example">/do 버그 수정해줘</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Tab 3: Artifacts -->
+    <div class="guide-tab-panel" id="guide-tab-artifacts">
+      <p class="guide-section-label">커맨드별 산출물</p>
+
+      <!-- /pm row -->
+      <div class="guide-artifact-row">
+        <span class="guide-artifact-cmd-badge" style="background:#F5F3FF; color:#7C3AED;">/pm</span>
+        <div class="guide-artifact-chips">
+          <div class="guide-artifact-chip" style="background:#F5F3FF; border-color:#DDD6FE;">
+            <div class="guide-chip-icon" style="background:#EDE9FE; color:#7C3AED;">&#127912;</div>
+            <div>
+              <div class="guide-chip-name" style="color:#7C3AED;">idea.html</div>
+              <div class="guide-chip-desc" style="color:#7C3AED;">아이디어 시각화</div>
+            </div>
+          </div>
+          <div class="guide-artifact-chip" style="background:#EFF6FF; border-color:#BFDBFE;">
+            <div class="guide-chip-icon" style="background:#DBEAFE; color:#2563EB;">&#128396;</div>
+            <div>
+              <div class="guide-chip-name" style="color:#2563EB;">design.html</div>
+              <div class="guide-chip-desc" style="color:#2563EB;">Before/After 목업</div>
+            </div>
+          </div>
+          <div class="guide-artifact-chip" style="background:#ECFDF5; border-color:#A7F3D0;">
+            <div class="guide-chip-icon" style="background:#D1FAE5; color:#059669;">&#128196;</div>
+            <div>
+              <div class="guide-chip-name" style="color:#059669;">brief.md</div>
+              <div class="guide-chip-desc" style="color:#059669;">개발 입력 명세</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- /dev row -->
+      <div class="guide-artifact-row">
+        <span class="guide-artifact-cmd-badge" style="background:#EFF6FF; color:#2563EB;">/dev</span>
+        <div class="guide-artifact-chips">
+          <div class="guide-artifact-chip" style="background:#FEF3C7; border-color:#FDE68A;">
+            <div class="guide-chip-icon" style="background:#FEF9C3; color:#D97706;">&#9989;</div>
+            <div>
+              <div class="guide-chip-name" style="color:#D97706;">complete.md</div>
+              <div class="guide-chip-desc" style="color:#D97706;">구현 완료 변경 내역</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- /do row -->
+      <div class="guide-artifact-row">
+        <span class="guide-artifact-cmd-badge" style="background:#FEF3C7; color:#D97706;">/do</span>
+        <div class="guide-artifact-chips">
+          <div class="guide-artifact-chip" style="background:#FEF3C7; border-color:#FDE68A;">
+            <div class="guide-chip-icon" style="background:#FEF9C3; color:#D97706;">&#9989;</div>
+            <div>
+              <div class="guide-chip-name" style="color:#D97706;">complete.md</div>
+              <div class="guide-chip-desc" style="color:#D97706;">완료 후 변경 내역</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Path block -->
+      <div class="guide-path-block">
+        <div class="guide-path-label">저장 경로</div>
+        <div class="guide-path-tree">
+<span class="tree-dir">output/</span>
+├── history.json
+└── <span class="tree-dir">tasks/</span>
+    └── <span class="tree-dir">001-태스크-이름/</span>
+        ├── <span class="tree-file-idea">idea.html</span>
+        ├── <span class="tree-file-design">design.html</span>
+        ├── <span class="tree-file-brief">brief.md</span>
+        └── <span class="tree-file-complete">complete.md</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Status Colors (4-stage: 진행중 / 승인대기 / 완료 / 폐기) ──
+const STATUS_COLORS = {
+  '진행중':   { bg: '#EFF6FF', text: '#3B82F6', bar: '#3B82F6', darkBg: '#1E3A5F', darkText: '#60A5FA' },
+  '승인대기': { bg: '#FFF7ED', text: '#EA580C', bar: '#F97316', darkBg: '#431407', darkText: '#FB923C' },
+  '완료':     { bg: '#ECFDF5', text: '#059669', bar: '#10B981', darkBg: '#064E3B', darkText: '#34D399' },
+  '폐기':     { bg: '#F1F5F9', text: '#64748B', bar: '#94A3B8', darkBg: '#1E293B', darkText: '#64748B' },
+};
+
+// Artifact type definitions (replaces flat ARTIFACT_FILES)
+const ARTIFACT_TYPES = [
+  { key: 'idea',     label: 'Idea',     ext: 'html', cssType: 'type-idea'     },
+  { key: 'design',   label: 'Design',   ext: 'html', cssType: 'type-design'   },
+  { key: 'brief',    label: 'Brief',    ext: 'md',   cssType: 'type-brief'    },
+  { key: 'complete', label: 'Complete', ext: 'md',   cssType: 'type-complete' },
+];
+
+// Color map for artifact types
+const ARTIFACT_COLOR_MAP = {
+  'type-idea':     { bg: '#F5F3FF', text: '#7C3AED' },
+  'type-design':   { bg: '#EFF6FF', text: '#2563EB' },
+  'type-brief':    { bg: '#ECFDF5', text: '#059669' },
+  'type-complete': { bg: '#FEF3C7', text: '#D97706' },
+};
+
+let allTasks = [];
+let filteredTasks = [];
+let sortKey = 'date';
+let sortAsc = false;
+let completedSet = new Set(); // task IDs with complete.md
+
+// ── Dark Mode ──
+
+function initTheme() {
+  const saved = localStorage.getItem('dashboard-theme');
+  if (saved === 'dark') {
+    document.body.classList.add('dark');
+  } else if (saved === 'light') {
+    document.body.classList.remove('dark');
+  } else {
+    // Follow system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark');
+    }
+  }
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  const dark = document.body.classList.contains('dark');
+  localStorage.setItem('dashboard-theme', dark ? 'dark' : 'light');
+}
+
+initTheme();
+document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+// ── Helper: isDark ──
+function isDark() {
+  return document.body.classList.contains('dark');
+}
+
+// ── /dev 힌트 버튼 클립보드 복사 + 토스트 ──
+
+function copyDevCommand(cmd) {
+  navigator.clipboard.writeText(cmd).then(() => {
+    showToast(`${cmd} 복사됨 — 채팅창에 붙여넣기 하세요`);
+  }).catch(() => {
+    showToast(`${cmd} — 직접 입력해주세요`);
+  });
+}
+
+function showToast(message) {
+  let toast = document.getElementById('dashboard-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'dashboard-toast';
+    toast.style.cssText = [
+      'position:fixed', 'bottom:24px', 'left:50%', 'transform:translateX(-50%)',
+      'background:#1E293B', 'color:#F1F5F9', 'font-size:13px', 'font-weight:500',
+      'padding:10px 20px', 'border-radius:8px', 'box-shadow:0 4px 16px rgba(0,0,0,0.2)',
+      'z-index:9999', 'transition:opacity 0.3s', 'pointer-events:none'
+    ].join(';');
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.style.opacity = '1';
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+}
+
+// ── Data Loading ──
+
+async function loadData() {
+  try {
+    const res = await fetch('../../output/history.json');
+    if (!res.ok) throw new Error('fetch failed');
+    allTasks = await res.json();
+
+    allTasks.forEach(t => {
+      if (!t.currentPhase && t.logs && t.logs.length > 0) {
+        t.currentPhase = t.logs[t.logs.length - 1].phase || '';
+      }
+      if (!t.updatedAt && t.logs && t.logs.length > 0) {
+        t.updatedAt = t.logs[t.logs.length - 1].date || '';
+      }
+      if (!t.createdAt && t.logs && t.logs.length > 0) {
+        t.createdAt = t.logs[0].date || '';
+      }
+    });
+
+    if (allTasks.length === 0) {
+      document.getElementById('empty-state').classList.remove('hidden');
+      return;
+    }
+
+    // Pre-check complete.md for each task to determine status
+    await Promise.all(allTasks.map(async t => {
+      const taskPath = t.path || `output/tasks/${t.id}`;
+      const url = `../../${taskPath}/complete.md`;
+      const exists = await checkFileExists(url);
+      if (exists) completedSet.add(t.id);
+    }));
+
+    document.getElementById('main-content').classList.remove('hidden');
+    applyFilters();
+    renderSidebar();
+    renderTable();
+  } catch (e) {
+    document.getElementById('error-state').classList.remove('hidden');
+  }
+}
+
+// ── Status helpers (3-stage) ──
+
+function getStatus(task) {
+  if (task.status === '폐기') return '폐기';
+  const devDone = (task.logs || []).some(l => l.phase === '개발' && l.status === '완료');
+  const phaseDone = task.currentPhase === '완료';
+  const hasComplete = completedSet.has(task.id);
+  if (devDone || phaseDone || hasComplete) return '완료';
+  // 신규: 디자인 승인됐지만 개발 미완료 → 승인대기
+  const designApproved = (task.logs || []).some(
+    l => l.phase === '디자인' && l.status === '승인'
+  );
+  if (designApproved) return '승인대기';
+  return '진행중';
+}
+
+function isCompleted(task) {
+  return getStatus(task) === '완료';
+}
+
+// ── Date helpers ──
+
+function daysAgo(dateStr) {
+  if (!dateStr) return Infinity;
+  const d = new Date(dateStr);
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  d.setHours(0,0,0,0);
+  return Math.floor((now - d) / 86400000);
+}
+
+function formatRelative(dateStr) {
+  const days = daysAgo(dateStr);
+  if (days === 0) return '오늘';
+  if (days === 1) return '1일 전';
+  if (days < 7) return days + '일 전';
+  if (days === 7) return '1주 전';
+  return Math.floor(days / 7) + '주 전';
+}
+
+// ── Filtering & Sorting ──
+
+function applyFilters() {
+  const searchTerm = document.getElementById('search-input').value.toLowerCase();
+  const statusFilter = document.getElementById('phase-select').value;
+
+  filteredTasks = allTasks.filter(t => {
+    const name = (t.name || t.slug || t.id || '').toLowerCase();
+    if (searchTerm && !name.includes(searchTerm)) return false;
+    if (statusFilter !== 'all' && getStatus(t) !== statusFilter) return false;
+    return true;
+  });
+
+  sortTasks();
+}
+
+function sortTasks() {
+  filteredTasks.sort((a, b) => {
+    let va, vb;
+    switch (sortKey) {
+      case 'id':
+        va = a.id || ''; vb = b.id || '';
+        break;
+      case 'name':
+        va = (a.name || a.slug || a.id || '').toLowerCase();
+        vb = (b.name || b.slug || b.id || '').toLowerCase();
+        break;
+      case 'phase':
+        const order = { '진행중': 0, '승인대기': 1, '완료': 2, '폐기': 3 };
+        va = order[getStatus(a)] ?? 2;
+        vb = order[getStatus(b)] ?? 2;
+        break;
+      case 'date':
+      default:
+        va = a.updatedAt || ''; vb = b.updatedAt || '';
+        break;
+    }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+// ── Sidebar Rendering ──
+
+function renderSidebar() {
+  const statusFilter = document.getElementById('phase-select').value;
+  const source = statusFilter === 'all' ? allTasks : filteredTasks;
+
+  const total = source.length;
+  const done = source.filter(t => isCompleted(t)).length;
+  const active = source.filter(t => getStatus(t) !== '폐기').length;
+  const pct = active > 0 ? Math.round((done / active) * 100) : 0;
+
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-done').textContent = done;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+
+  // Status distribution (4 bars)
+  const statuses = ['진행중', '승인대기', '완료', '폐기'];
+  const counts = {};
+  statuses.forEach(s => counts[s] = 0);
+  source.forEach(t => {
+    const s = getStatus(t);
+    if (counts[s] !== undefined) counts[s]++;
+  });
+
+  const chartEl = document.getElementById('phase-chart');
+  chartEl.innerHTML = statuses.map(s => {
+    const c = counts[s];
+    const barPct = total > 0 ? (c / total) * 100 : 0;
+    const color = STATUS_COLORS[s];
+    const barColor = isDark() ? color.darkText : color.bar;
+    return `<div class="bar-row">
+      <span class="bar-label">${s}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${Math.max(barPct, c > 0 ? 8 : 0)}%; background:${barColor};">${c}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── File Existence Check ──
+
+async function checkFileExists(url) {
+  try {
+    const res = await fetch(url, { method: 'HEAD' });
+    return res.ok;
+  } catch { return false; }
+}
+
+// ── Artifact file discovery (type-based, supports multi-file) ──
+
+async function findArtifactFiles(relativePath, artifactType) {
+  const { key, ext } = artifactType;
+  const found = [];
+
+  // 1) Exact single filename first (idea.html, design.html, etc.)
+  const singleUrl = `${relativePath}/${key}.${ext}`;
+  if (await checkFileExists(singleUrl)) {
+    found.push({ url: singleUrl, name: `${key}.${ext}` });
+  }
+
+  // 2) Multi-file pattern: [key]-a.ext, [key]-b.ext, etc.
+  const suffixes = ['a', 'b', 'c', 'v2', 'v3', 'final', 'draft', 'r1', 'r2', 'r3'];
+  for (const s of suffixes) {
+    const url = `${relativePath}/${key}-${s}.${ext}`;
+    if (await checkFileExists(url)) {
+      found.push({ url, name: `${key}-${s}.${ext}` });
+    }
+  }
+
+  return found;
+}
+
+// ── Table Rendering ──
+
+async function renderTable() {
+  const tbody = document.getElementById('table-body');
+  const emptyMsg = document.getElementById('table-empty');
+
+  if (filteredTasks.length === 0) {
+    tbody.innerHTML = '';
+    emptyMsg.classList.remove('hidden');
+    return;
+  }
+  emptyMsg.classList.add('hidden');
+
+  const rows = [];
+
+  for (const task of filteredTasks) {
+    const status = getStatus(task);
+    const completed = status === '완료';
+    const colors = STATUS_COLORS[status];
+    const dark = isDark();
+    const badgeBg = dark ? colors.darkBg : colors.bg;
+    const badgeText = dark ? colors.darkText : colors.text;
+    const taskPath = task.path || `output/tasks/${task.id}`;
+    const relativePath = '../../' + taskPath;
+    const taskName = task.name || task.slug || task.id;
+
+    // Build artifact links with type colors + multi-file support
+    const links = [];
+    for (const artifactType of ARTIFACT_TYPES) {
+      const files = await findArtifactFiles(relativePath, artifactType);
+      if (files.length === 0) continue;
+
+      const { label, cssType } = artifactType;
+      const fileType = artifactType.ext === 'html' ? 'html' : 'md';
+
+      if (files.length === 1) {
+        // Single file — open modal directly
+        links.push(
+          `<a class="artifact-link ${cssType}"
+              onclick="openModal('${files[0].url}', '${fileType}', '${label}', '${taskName.replace(/'/g, "\\'")}')"
+            >${label}</a>`
+        );
+      } else {
+        // Multiple files — show count badge, click opens list modal
+        const countBadge = `<span class="artifact-count-badge">&times;${files.length}</span>`;
+        const filesJson = JSON.stringify(files).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        links.push(
+          `<a class="artifact-link ${cssType}"
+              onclick="openArtifactList(${JSON.stringify(files)}, '${cssType}', '${label}', '${taskName.replace(/'/g, "\\'")}', '${fileType}')"
+            >${label}${countBadge}</a>`
+        );
+      }
+    }
+
+    // 승인대기 태스크에 /dev 힌트 버튼 추가
+    if (status === '승인대기') {
+      const taskIdNum = (task.id || '').replace(/\D/g, '').replace(/^0+/, '') || task.id;
+      const devCmd = `/dev ${taskIdNum.toString().padStart(3, '0')}`;
+      links.push(
+        `<button class="dev-hint-btn"
+          onclick="copyDevCommand('${devCmd}')"
+          title="클릭하면 클립보드에 복사됩니다">
+          &#9889;${devCmd}
+        </button>`
+      );
+    }
+
+    const idNum = (task.id || '').replace(/\D/g, '').replace(/^0+/, '') || task.id;
+
+    rows.push(`<tr class="${completed ? 'completed' : ''}">
+      <td><code class="task-id">${idNum.toString().padStart(3, '0')}</code></td>
+      <td><span class="task-name">${task.name || task.slug || task.id}</span></td>
+      <td><span class="phase-badge" style="background:${badgeBg}; color:${badgeText};">${status}</span></td>
+      <td class="task-date">${formatRelative(task.updatedAt)}</td>
+      <td><div class="artifact-links">${links.join('')}</div></td>
+    </tr>`);
+  }
+
+  tbody.innerHTML = rows.join('');
+}
+
+// ── Modal — Artifact Viewer ──
+
+function openModal(url, type, label, taskName) {
+  const modal = document.getElementById('artifact-modal');
+  const body = document.getElementById('modal-body');
+  const typeBadge = document.getElementById('modal-type-badge');
+  const nameEl = document.getElementById('modal-task-name');
+  const openTab = document.getElementById('modal-open-tab');
+
+  // Set type badge with artifact type colors
+  const cssTypeKey = 'type-' + label.toLowerCase();
+  const typeColors = ARTIFACT_COLOR_MAP[cssTypeKey] || { bg: '#EFF6FF', text: '#3B82F6' };
+  typeBadge.style.background = typeColors.bg;
+  typeBadge.style.color = typeColors.text;
+  typeBadge.textContent = label;
+  nameEl.textContent = taskName;
+
+  // "Open in new tab" link
+  openTab.onclick = () => window.open(url, '_blank');
+  openTab.style.display = '';
+
+  // Render content
+  body.innerHTML = '';
+  if (type === 'html') {
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.style.width = '100%';
+    iframe.style.height = 'calc(80vh - 56px)';
+    iframe.style.border = 'none';
+    body.style.padding = '0';
+    body.appendChild(iframe);
+  } else if (type === 'md') {
+    body.style.padding = '18px';
+    fetch(url)
+      .then(r => r.text())
+      .then(md => {
+        body.innerHTML = '<div class="md-content">' + parseMarkdown(md) + '</div>';
+      })
+      .catch(() => {
+        body.innerHTML = '<p style="color:#94A3B8;">파일을 불러올 수 없습니다.</p>';
+      });
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeModal() {
+  const modal = document.getElementById('artifact-modal');
+  const container = modal.querySelector('.modal-container');
+  const body = document.getElementById('modal-body');
+  modal.classList.add('hidden');
+  container.classList.remove('expanded');
+  document.getElementById('modal-expand-btn').textContent = '⤢';
+  body.innerHTML = '';
+  body.style.padding = '18px';
+  document.getElementById('modal-open-tab').style.display = '';
+}
+
+function toggleModalExpand() {
+  const container = document.querySelector('#artifact-modal .modal-container');
+  const btn = document.getElementById('modal-expand-btn');
+  const isExpanded = container.classList.toggle('expanded');
+  btn.textContent = isExpanded ? '⤡' : '⤢';
+  // Update iframe height if present
+  const iframe = document.querySelector('#artifact-modal .modal-body iframe');
+  if (iframe) {
+    iframe.style.height = isExpanded ? 'calc(95vh - 56px)' : 'calc(80vh - 56px)';
+  }
+}
+
+// ── Modal — Artifact List (multi-file) ──
+
+function openArtifactList(files, cssType, label, taskName, fileType) {
+  const modal = document.getElementById('artifact-modal');
+  const body = document.getElementById('modal-body');
+  const typeBadge = document.getElementById('modal-type-badge');
+  const nameEl = document.getElementById('modal-task-name');
+  const openTab = document.getElementById('modal-open-tab');
+
+  const colors = ARTIFACT_COLOR_MAP[cssType] || { bg: '#EFF6FF', text: '#3B82F6' };
+  typeBadge.style.background = colors.bg;
+  typeBadge.style.color = colors.text;
+  typeBadge.textContent = label;
+  nameEl.textContent = taskName;
+  openTab.style.display = 'none'; // hide until a file is selected
+
+  const fileIcon = fileType === 'html' ? '&#127912;' : '&#128196;';
+
+  body.style.padding = '0';
+  body.innerHTML = `
+    <div style="width:100%;">
+      ${files.map(f => `
+        <div class="artifact-list-item">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:32px; height:32px; border-radius:7px; background:${colors.bg}; display:flex; align-items:center; justify-content:center; font-size:14px;">${fileIcon}</div>
+            <div>
+              <p style="font-size:12px; font-weight:500; color:inherit;">${f.name}</p>
+            </div>
+          </div>
+          <button class="artifact-list-open"
+            style="color:${colors.text}; border-color:${colors.text};"
+            onclick="openModal('${f.url}', '${fileType}', '${label}', '${taskName.replace(/'/g, "\\'")}')">
+            열기
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  modal.classList.remove('hidden');
+}
+
+document.getElementById('modal-expand-btn').addEventListener('click', toggleModalExpand);
+document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+document.getElementById('artifact-modal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// ── Guide Modal ──
+
+document.getElementById('guide-btn').addEventListener('click', () => {
+  document.getElementById('guide-modal').classList.remove('hidden');
+});
+document.getElementById('guide-close-btn').addEventListener('click', () => {
+  document.getElementById('guide-modal').classList.add('hidden');
+});
+document.getElementById('guide-modal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) {
+    document.getElementById('guide-modal').classList.add('hidden');
+  }
+});
+
+// ── Guide Modal Tab Switching ──
+
+document.querySelectorAll('.guide-modal-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    // Deactivate all tabs and panels
+    document.querySelectorAll('.guide-modal-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.guide-tab-panel').forEach(p => p.classList.remove('active'));
+    // Activate selected
+    tab.classList.add('active');
+    const panel = document.getElementById('guide-tab-' + target);
+    if (panel) panel.classList.add('active');
+  });
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+    document.getElementById('guide-modal').classList.add('hidden');
+  }
+});
+
+// ── Simple Markdown Parser ──
+
+function parseMarkdown(text) {
+  const lines = text.split('\n');
+  let html = '';
+  let inCodeBlock = false;
+  let codeContent = '';
+  let inList = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Code blocks
+    if (line.trimStart().startsWith('```')) {
+      if (inCodeBlock) {
+        html += '<pre><code>' + escapeHtml(codeContent.trimEnd()) + '</code></pre>';
+        codeContent = '';
+        inCodeBlock = false;
+      } else {
+        if (inList) { html += '</ul>'; inList = false; }
+        inCodeBlock = true;
+      }
+      continue;
+    }
+
+    if (inCodeBlock) {
+      codeContent += line + '\n';
+      continue;
+    }
+
+    // Close list if not a list item
+    if (inList && !line.match(/^[-*]\s/)) {
+      html += '</ul>';
+      inList = false;
+    }
+
+    // Headings
+    if (line.startsWith('### ')) {
+      html += '<h3>' + inlineFormat(line.slice(4)) + '</h3>';
+    } else if (line.startsWith('## ')) {
+      html += '<h2>' + inlineFormat(line.slice(3)) + '</h2>';
+    } else if (line.startsWith('# ')) {
+      html += '<h1>' + inlineFormat(line.slice(2)) + '</h1>';
+    }
+    // Blockquote
+    else if (line.startsWith('> ')) {
+      html += '<blockquote class="meta">' + inlineFormat(line.slice(2)) + '</blockquote>';
+    }
+    // List items
+    else if (line.match(/^[-*]\s/)) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += '<li>' + inlineFormat(line.replace(/^[-*]\s/, '')) + '</li>';
+    }
+    // Empty line
+    else if (line.trim() === '') {
+      html += '<br>';
+    }
+    // Paragraph
+    else {
+      html += '<p>' + inlineFormat(line) + '</p>';
+    }
+  }
+
+  if (inList) html += '</ul>';
+  if (inCodeBlock) {
+    html += '<pre><code>' + escapeHtml(codeContent.trimEnd()) + '</code></pre>';
+  }
+
+  return html;
+}
+
+function inlineFormat(text) {
+  text = escapeHtml(text);
+  // Bold
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Inline code
+  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+  return text;
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Event Listeners ──
+
+document.getElementById('search-input').addEventListener('keyup', () => {
+  applyFilters();
+  renderSidebar();
+  renderTable();
+});
+
+document.getElementById('phase-select').addEventListener('change', () => {
+  applyFilters();
+  renderSidebar();
+  renderTable();
+});
+
+document.querySelectorAll('.data-table th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if (sortKey === key) {
+      sortAsc = !sortAsc;
+    } else {
+      sortKey = key;
+      sortAsc = key === 'date' ? false : true;
+    }
+
+    document.querySelectorAll('.data-table th').forEach(h => {
+      h.classList.remove('sorted');
+      const arrow = h.querySelector('.sort-arrow');
+      if (arrow) arrow.textContent = '\u25B2';
+    });
+    th.classList.add('sorted');
+    const arrow = th.querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = sortAsc ? '\u25B2' : '\u25BC';
+
+    applyFilters();
+    renderTable();
+  });
+});
+
+document.querySelector('th[data-sort="date"]').classList.add('sorted');
+
+// Init
+loadData();
+</script>
+
+</body>
+</html>
