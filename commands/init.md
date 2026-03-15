@@ -252,6 +252,16 @@ CLAUDE.md는 **에이전트의 작업 매뉴얼**입니다. 다음 질문에 답
 - 기존 CLAUDE.md가 있으면 AskUserQuestion으로 덮어쓸지 확인
 - 완료 후 생성된 CLAUDE.md 내용을 요약 출력
 
+## Step 4: output 디렉토리 초기화
+
+CLAUDE.md 생성 후 즉시 수행합니다.
+
+1. `output/` 디렉토리가 없으면 생성
+2. `output/tasks/` 디렉토리가 없으면 생성
+3. `output/history.json`이 없으면 빈 배열 `[]`로 생성
+4. `.claude/templates/dashboard-template.html`을 Read → `output/dashboard.html`로 Write (복사)
+   - 이미 존재하면 AskUserQuestion으로 덮어쓸지 확인
+
 ## Output
 
 ```
@@ -260,7 +270,11 @@ CLAUDE.md는 **에이전트의 작업 매뉴얼**입니다. 다음 질문에 답
 감지된 스택: [기술 스택 요약]
 프로젝트 수: [N개]
 분석한 파일: [N개]
-생성된 파일: CLAUDE.md (루트)
+생성된 파일:
+  - CLAUDE.md (루트)
+  - output/dashboard.html (태스크 대시보드)
+  - output/history.json (태스크 이력, 신규 시)
 
 이제 /pm, /dev, /do 명령을 사용할 수 있습니다.
+대시보드: output/dashboard.html을 브라우저에서 열어 확인하세요.
 ```
