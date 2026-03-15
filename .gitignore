@@ -1,3 +1,8 @@
 .vscode
-output
+output/tasks
+output/history.json
 CLAUDE.md
+.claude/commands/
+.claude/hooks/
+.claude/templates/
+.claude/settings.local.json
