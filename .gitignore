@@ -1,3 +1,6 @@
 settings.local.json
 output/
 .vscode/
+
+# 프로젝트별 자동 생성되는 디자인 시스템 문서
+skills/design-inspiration/references/DESIGN.md
