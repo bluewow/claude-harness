@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "permissions": {
     "allow": [
       "Read",
@@ -9,7 +12,9 @@
       "WebFetch",
       "WebSearch",
       "Bash(*)",
-      "Task(*)"
+      "Task(*)",
+      "Edit(/.claude/skills/design-inspiration/**)",
+      "Edit(/.claude/skills/image-to-html/**)"
     ],
     "deny": [
       "Bash(rm -rf /)",
@@ -18,10 +23,11 @@
       "Write(.env)",
       "Write(.env.local)",
       "Write(*.pem)"
+    ],
+    "additionalDirectories": [
+      ".claude/skills/design-inspiration/images",
+      ".claude/skills"
     ]
-  },
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "hooks": {
     "Stop": [
@@ -31,8 +37,8 @@
           {
             "type": "command",
             "command": "node .claude/hooks/slack-notify.js",
-            "async": true,
-            "timeout": 10
+            "timeout": 10,
+            "async": true
           }
         ]
       }
@@ -44,8 +50,8 @@
           {
             "type": "command",
             "command": "node .claude/hooks/slack-notify.js",
-            "async": true,
-            "timeout": 10
+            "timeout": 10,
+            "async": true
           }
         ]
       }
@@ -57,8 +63,8 @@
           {
             "type": "command",
             "command": "node .claude/hooks/slack-notify.js",
-            "async": true,
-            "timeout": 10
+            "timeout": 10,
+            "async": true
           }
         ]
       }
