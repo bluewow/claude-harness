@@ -1,5 +1,10 @@
 {
   "env": {
     "SLACK_WEBHOOK_URL": ""
+  },
+  "permissions": {
+    "allow": [
+      "Edit(/.claude/skills/image-to-html/**)"
+    ]
   }
 }

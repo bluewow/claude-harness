@@ -125,13 +125,18 @@ Agent(model="sonnet", prompt="크롭 이미지 기반으로 hero 섹션 HTML/CSS
 
 ## 출력 구조
 
+출력 경로: `output/image-to-html/{이미지파일명(확장자제외)}/`
+
 ```
-project/
-├── index.html
-├── css/
-│   └── style.css
-└── images/sections/    ← 크롭된 섹션 이미지
+output/image-to-html/
+└── {이미지파일명}/
+    ├── index.html
+    ├── css/
+    │   └── style.css
+    └── images/sections/    ← 크롭된 섹션 이미지
 ```
+
+예시: 입력이 `landing-page.png`이면 → `output/image-to-html/landing-page/` 에 생성
 
 ---
 
