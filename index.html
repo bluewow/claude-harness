@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code Workflow Kit - Technical Documentation</title>
+  <!-- Tailwind CSS 3.4.1 (Web CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Pretendard & Fira Code Fonts -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+    code, pre {
+      font-family: 'Fira Code', 'Courier New', Courier, monospace;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #09090b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3f3f46;
+    }
+    /* Active Link in Sidebar Document Navigation */
+    .active-nav-link {
+      color: #818cf8 !important;
+      border-left-color: #6366f1 !important;
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-300 min-h-screen flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200 antialiased">
+
+  <!-- Toast Notification Base (Custom Modal) -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-zinc-900 border border-zinc-800 text-zinc-100 px-4 py-2.5 rounded-lg shadow-2xl flex items-center space-x-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-xs font-medium">
+    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path>
+    </svg>
+    <span id="toast-message">클립보드에 복사되었습니다.</span>
+  </div>
+
+  <!-- Document Header -->
+  <header class="border-b border-zinc-900 bg-zinc-950/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-zinc-500 font-mono text-xs">DOCS //</span>
+        <h1 class="text-sm font-semibold tracking-tight text-zinc-100">
+          Claude Code Workflow Kit <span class="text-zinc-500 font-normal">v1.2.0</span>
+        </h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <!-- Search Bar -->
+        <div class="relative hidden sm:block">
+          <input type="text" id="doc-search" oninput="searchDocumentation()" placeholder="문서 내용 검색..." class="bg-zinc-900/50 border border-zinc-800/80 rounded px-2.5 py-1 text-xs focus:outline-none focus:border-indigo-500/80 text-zinc-300 placeholder-zinc-600 w-48 transition-all" />
+          <span class="absolute right-2.5 top-1.5 text-[9px] text-zinc-600 font-mono bg-zinc-950 px-1 py-0.5 rounded border border-zinc-850">Ctrl+/</span>
+        </div>
+        <span class="text-xs text-zinc-500 font-mono bg-zinc-900 border border-zinc-850 px-2 py-0.5 rounded">STABLE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content Workspace -->
+  <div class="flex-grow max-w-7xl w-full mx-auto flex flex-col md:flex-row">
+    
+    <!-- Left Sidebar: Table of Contents -->
+    <aside class="md:w-64 border-r border-zinc-900 p-6 md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] overflow-y-auto shrink-0 space-y-8 bg-zinc-950/40">
+      <div class="space-y-2">
+        <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">가이드북 개요</span>
+        <div class="space-y-1">
+          <a href="#overview" class="nav-link flex items-center px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded border-l-2 border-transparent transition pl-4">워크플로우 소개</a>
+          <a href="#pipeline" class="nav-link flex items-center px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded border-l-2 border-transparent transition pl-4">전체 아키텍처 흐름</a>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">커맨드 사양서</span>
+        <div class="space-y-1">
+          <a href="#commands" class="nav-link flex items-center px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded border-l-2 border-transparent transition pl-4">기획 및 개발 명령어</a>
+          <a href="#setup-cmds" class="nav-link flex items-center px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded border-l-2 border-transparent transition pl-4">Next.js 세팅 가이드</a>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">기술 사양 및 구조</span>
+        <div class="space-y-1">
+          <a href="#directory" class="nav-link flex items-center px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded border-l-2 border-transparent transition pl-4">디렉토리 구조 상세</a>
+          <a href="#schemas" class="nav-link flex items-center px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded border-l-2 border-transparent transition pl-4">설정 및 스키마 JSON</a>
+          <a href="#slack" class="nav-link flex items-center px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 rounded border-l-2 border-transparent transition pl-4">Slack 알림 훅 스펙</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Main Content -->
+    <main class="flex-grow p-6 sm:p-10 md:max-w-[calc(100%-16rem)] space-y-16">
+      
+      <!-- Section: Overview -->
+      <section id="overview" class="scroll-mt-20 space-y-4">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-mono text-indigo-500 font-semibold">[01]</span>
+          <h2 class="text-xl font-bold text-zinc-100">워크플로우 소개</h2>
+        </div>
+        <p class="text-sm text-zinc-400 leading-relaxed max-w-3xl">
+          이 문서는 <strong class="text-zinc-200">Claude Code의 슬래시 커맨드, 백그라운드 훅 및 동적 대시보드</strong>를 연계하여 비즈니스 기획을 즉시 분석 가능한 구조의 프로덕션 코드로 전환해내는 <strong>자동화 파이프라인 지침서</strong>입니다. 복잡한 마케팅 요소를 배제하고 오직 규격, 파일 구조, 인터페이스 표준에만 집중합니다.
+        </p>
+        <div class="bg-zinc-900/50 border border-zinc-850 p-4 rounded-lg flex items-start space-x-3 max-w-3xl">
+          <span class="text-sm">💡</span>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            모든 킷은 <code class="text-zinc-300">.claude/</code> 내부 파일들의 약속된 전제와 정적 해석 룰을 따라 작동합니다. 최종 산출물은 프로젝트 루트의 <code class="text-zinc-300">output/</code> 폴더로 격리되어 정렬됩니다.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section: Interactive Diagram Flow -->
+      <section id="pipeline" class="scroll-mt-20 space-y-6 border-t border-zinc-900 pt-10">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-mono text-indigo-500 font-semibold">[02]</span>
+          <h2 class="text-xl font-bold text-zinc-100">전체 아키텍처 흐름</h2>
+        </div>
+        
+        <!-- Interactive Node-based visual logic representation -->
+        <div class="bg-zinc-950 border border-zinc-900 rounded-xl overflow-hidden">
+          <div class="p-4 bg-zinc-900/20 border-b border-zinc-900 flex justify-between items-center">
+            <span class="text-xs font-mono text-zinc-400">CORE WORKFLOW PIPELINE ARCHITECTURE</span>
+            <span class="text-[10px] text-zinc-500">블록을 클릭하면 세부 실행 로그가 하단에 명세됩니다.</span>
+          </div>
+          
+          <div class="p-6 overflow-x-auto">
+            <!-- SVG-like Pure Flex Pipeline Grid -->
+            <div class="min-w-[700px] flex items-stretch justify-between relative py-6">
+              
+              <!-- Segment 1: User Request -->
+              <div onclick="selectFlowStep('req')" id="flow-req" class="flow-step-block cursor-pointer w-44 bg-zinc-900/40 hover:bg-zinc-900 hover:border-zinc-700 border border-zinc-850 rounded-lg p-3.5 transition-all space-y-2 flex flex-col justify-between">
+                <span class="text-[10px] text-indigo-400 font-mono font-bold">START // FOREGROUND</span>
+                <div class="space-y-1">
+                  <h4 class="text-xs font-bold text-zinc-200">요구사항 지시</h4>
+                  <p class="text-[10px] text-zinc-500 font-mono">/pm "로그인 만들자"</p>
+                </div>
+                <span class="text-[9px] text-zinc-500 block">사용자 의견 수렴 및 설계</span>
+              </div>
+
+              <!-- Arrow -->
+              <div class="flex items-center text-zinc-700 font-mono text-sm shrink-0">➔</div>
+
+              <!-- Segment 2: PM Phase -->
+              <div onclick="selectFlowStep('pm')" id="flow-pm" class="flow-step-block cursor-pointer w-44 bg-zinc-900/40 hover:bg-zinc-900 hover:border-zinc-700 border border-zinc-850 rounded-lg p-3.5 transition-all space-y-2 flex flex-col justify-between">
+                <span class="text-[10px] text-amber-400 font-mono font-bold">PROCESS 01 // PM</span>
+                <div class="space-y-1">
+                  <h4 class="text-xs font-bold text-zinc-200">기획/디자인 명세화</h4>
+                  <p class="text-[10px] text-zinc-500 font-mono">Q&A 및 유형 자동 분석</p>
+                </div>
+                <span class="text-[9px] text-emerald-400 font-mono">brief.md 생성</span>
+              </div>
+
+              <!-- Arrow -->
+              <div class="flex items-center text-zinc-700 font-mono text-sm shrink-0">➔</div>
+
+              <!-- Segment 3: Developer Phase -->
+              <div onclick="selectFlowStep('dev')" id="flow-dev" class="flow-step-block cursor-pointer w-44 bg-zinc-900/40 hover:bg-zinc-900 hover:border-zinc-700 border border-zinc-850 rounded-lg p-3.5 transition-all space-y-2 flex flex-col justify-between">
+                <span class="text-[10px] text-purple-400 font-mono font-bold">PROCESS 02 // BACKGROUND</span>
+                <div class="space-y-1">
+                  <h4 class="text-xs font-bold text-zinc-200">코드 자동 병합</h4>
+                  <p class="text-[10px] text-zinc-500 font-mono">/dev [태스크 ID]</p>
+                </div>
+                <span class="text-[9px] text-zinc-500 block">기획 검증 후 소스 생성</span>
+              </div>
+
+              <!-- Arrow -->
+              <div class="flex items-center text-zinc-700 font-mono text-sm shrink-0">➔</div>
+
+              <!-- Segment 4: Verification -->
+              <div onclick="selectFlowStep('verify')" id="flow-verify" class="flow-step-block cursor-pointer w-44 bg-zinc-900/40 hover:bg-zinc-900 hover:border-zinc-700 border border-zinc-850 rounded-lg p-3.5 transition-all space-y-2 flex flex-col justify-between">
+                <span class="text-[10px] text-emerald-400 font-mono font-bold">END // PIPELINE VALID</span>
+                <div class="space-y-1">
+                  <h4 class="text-xs font-bold text-zinc-200">빌드 & 테스트</h4>
+                  <p class="text-[10px] text-zinc-500 font-mono">자동 에러체크 완료</p>
+                </div>
+                <span class="text-[9px] text-indigo-400 font-mono">complete.md 기록</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Bottom detailed logging explaining the clicked block -->
+          <div id="flow-log" class="p-4 bg-zinc-900/40 border-t border-zinc-900 space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              <span class="text-xs font-mono font-bold text-zinc-300" id="flow-log-header">초기 입력 단계</span>
+            </div>
+            <p id="flow-log-body" class="text-xs text-zinc-400 leading-relaxed">
+              사용자가 터미널에서 신규 피처 또는 레이아웃 수정을 제기하는 최초 시작 지점입니다. 이 단계에서 수신된 파라미터는 후속 `/pm` 프롬프트로 전달되며 구조 판단의 기준점이 됩니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Command Tables -->
+      <section id="commands" class="scroll-mt-20 space-y-6 border-t border-zinc-900 pt-10">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-mono text-indigo-500 font-semibold">[03]</span>
+          <h2 class="text-xl font-bold text-zinc-100">기획 및 개발 명령어 레퍼런스</h2>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-zinc-850 text-zinc-400">
+                <th class="py-3 px-4 font-mono font-medium">Command</th>
+                <th class="py-3 px-4 font-medium">실행 방식</th>
+                <th class="py-3 px-4 font-medium">주요 입력값</th>
+                <th class="py-3 px-4 font-medium">핵심 산출 파일</th>
+                <th class="py-3 px-4 font-medium">사용 용도</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-900 text-zinc-300">
+              <tr>
+                <td class="py-4 px-4"><code class="text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded font-mono font-bold text-[11px]">/init</code></td>
+                <td class="py-4 px-4 text-zinc-400 font-mono">Foreground</td>
+                <td class="py-4 px-4 text-zinc-500">—</td>
+                <td class="py-4 px-4 text-indigo-300 font-mono">CLAUDE.md</td>
+                <td class="py-4 px-4">프로젝트 파일 스캔 및 Claude Code 전용 표준 컨텍스트 구축</td>
+              </tr>
+              <tr>
+                <td class="py-4 px-4"><code class="text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded font-mono font-bold text-[11px]">/pm [요청]</code></td>
+                <td class="py-4 px-4 text-zinc-400 font-mono">Foreground (대화형)</td>
+                <td class="py-4 px-4 text-zinc-400">자연어 기획안</td>
+                <td class="py-4 px-4 text-indigo-300 font-mono">brief.md, *.html</td>
+                <td class="py-4 px-4">타겟 세그먼트, 화면 설계 질의응답을 거쳐 완결된 기획서 도출</td>
+              </tr>
+              <tr>
+                <td class="py-4 px-4"><code class="text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded font-mono font-bold text-[11px]">/dev [ID]</code></td>
+                <td class="py-4 px-4 text-zinc-400 font-mono">Background</td>
+                <td class="py-4 px-4 text-zinc-400">태스크 ID</td>
+                <td class="py-4 px-4 text-indigo-300 font-mono">complete.md</td>
+                <td class="py-4 px-4">작성 완료된 <code class="text-zinc-400">brief.md</code>를 로드하여 소스 코드 자동 연산 구현 및 병합</td>
+              </tr>
+              <tr>
+                <td class="py-4 px-4"><code class="text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded font-mono font-bold text-[11px]">/do [작업]</code></td>
+                <td class="py-4 px-4 text-zinc-400 font-mono">Background</td>
+                <td class="py-4 px-4 text-zinc-400">버그 패치 등 자연어 지시</td>
+                <td class="py-4 px-4 text-indigo-300 font-mono">complete.md</td>
+                <td class="py-4 px-4">기획 및 HTML 시안 전개 과정 없이 코드 수정 및 에러 검증을 다이렉트 수행</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section: Next.js Setup Commands -->
+      <section id="setup-cmds" class="scroll-mt-20 space-y-6 border-t border-zinc-900 pt-10">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-mono text-indigo-500 font-semibold">[04]</span>
+          <h2 class="text-xl font-bold text-zinc-100">Next.js 전용 기동 명령어</h2>
+        </div>
+        <p class="text-sm text-zinc-400 leading-relaxed max-w-3xl">
+          새 프로젝트 초기 가동 및 구조적 룰셋 검증을 담당하는 전용 슬래시 커맨드 사양입니다.
+        </p>
+
+        <!-- Tab Layout for Next.js Cmds -->
+        <div class="border border-zinc-900 rounded-xl overflow-hidden">
+          <div class="flex border-b border-zinc-900 bg-zinc-900/10">
+            <button onclick="toggleNextTab('create-cmd')" id="tab-btn-create-cmd" class="next-tab-btn px-4 py-2 text-xs font-semibold border-b-2 border-indigo-500 text-zinc-100 transition">/create-nextjs</button>
+            <button onclick="toggleNextTab('check-cmd')" id="tab-btn-check-cmd" class="next-tab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-zinc-500 hover:text-zinc-200 transition">/check-nextjs</button>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <!-- /create-nextjs detailed -->
+            <div id="content-create-cmd" class="next-tab-content block space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-mono text-zinc-400">실행 패턴: <code class="text-indigo-400">/create-nextjs [프로젝트명]</code></span>
+                <span class="text-[10px] text-indigo-500 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-900">프로덕션 전용 사양</span>
+              </div>
+              <p class="text-xs text-zinc-400 leading-relaxed">
+                빌드 보일러플레이트를 엔터프라이즈 사양(Tailwind 4, Zustand 상태 통합, React Query, Pretendard 폰트 페어링, TS Strict 모드 정렬)에 맞추어 14단계 연속 공정으로 즉시 배포합니다.
+              </p>
+              <div class="bg-zinc-950 p-4 rounded border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+                <div>- Next.js 기반의 표준 View-Action-Container (VAC) 레이어 자동 수립</div>
+                <div>- 404, error, loading 화면 구성 포함</div>
+                <div>- ESLint / Prettier 통합 빌드 최종 완결성 점검</div>
+              </div>
+            </div>
+
+            <!-- /check-nextjs detailed -->
+            <div id="content-check-cmd" class="next-tab-content hidden space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-mono text-zinc-400">실행 패턴: <code class="text-indigo-400">/check-nextjs [--report | --fix]</code></span>
+                <span class="text-[10px] text-amber-500 bg-amber-950 px-2 py-0.5 rounded border border-amber-900">검사 및 치유</span>
+              </div>
+              <p class="text-xs text-zinc-400 leading-relaxed">
+                현재 활성화된 프레임워크가 아키텍처 및 테마 룰셋(Global CSS 변수 무결성, 공급자 인젝션 등) 10대 검사 항목을 정상 통과하는지 자가 채점합니다.
+              </p>
+              <div class="bg-zinc-950 p-4 rounded border border-zinc-900 font-mono text-[11px] text-zinc-400 space-y-1">
+                <div><code class="text-zinc-200">--report</code> : 자동 조치 없이 위반 구조 리포트만 기록</div>
+                <div><code class="text-zinc-200">--fix</code> : 누락된 레이아웃 복원 및 빌드 차단 에러 최대 3회 자가 해결 시도</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Directory Tree -->
+      <section id="directory" class="scroll-mt-20 space-y-6 border-t border-zinc-900 pt-10">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-mono text-indigo-500 font-semibold">[05]</span>
+          <h2 class="text-xl font-bold text-zinc-100">디렉토리 구조 및 역할</h2>
+        </div>
+        <p class="text-sm text-zinc-400 leading-relaxed">
+          루트에 위치한 <code class="text-zinc-300">.claude/</code> 내부 디렉토리 맵과 개별 컴포넌트 파일의 정의입니다. 폴더를 열고 닫으며 각 컴포넌트의 상세 주석을 파악할 수 있습니다.
+        </p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Folder Node Navigation -->
+          <div class="lg:col-span-6 bg-zinc-950 p-5 rounded-xl border border-zinc-900 font-mono text-xs space-y-2 select-none">
+            <span class="text-[10px] text-zinc-500 font-bold block mb-2">DIRECTORY NAVIGATOR</span>
+            
+            <div class="text-zinc-200 flex items-center space-x-2">
+              <span>📁</span> <span class="font-bold">.claude/</span>
+            </div>
+
+            <!-- commands/ -->
+            <div class="pl-4 space-y-1">
+              <div onclick="toggleFolderUi('dir-commands', this)" class="flex items-center space-x-2 text-zinc-400 hover:text-zinc-100 cursor-pointer py-0.5">
+                <span class="folder-state-icon">▼</span> <span>📁 commands/</span>
+              </div>
+              <div id="dir-commands" class="pl-4 border-l border-zinc-900 ml-2 space-y-1">
+                <div onclick="showFileMeta('init.md', 'CLAUDE.md 생성 규칙', '프로젝트 루트 상태와 로컬 의존성 구조를 파악해 초기 인덱스 가이드를 생산합니다.')" class="file-item-doc text-zinc-500 hover:text-zinc-200 cursor-pointer py-0.5 flex items-center space-x-1.5">
+                  <span>📄</span> <span>init.md</span>
+                </div>
+                <div onclick="showFileMeta('pm.md', '기획 워크플로우 명세', '사용자 질의를 설계 템플릿과 정적으로 결합하여 brief.md 결과물을 구성합니다.')" class="file-item-doc text-zinc-500 hover:text-zinc-200 cursor-pointer py-0.5 flex items-center space-x-1.5">
+                  <span>📄</span> <span>pm.md</span>
+                </div>
+                <div onclick="showFileMeta('dev.md', '자동 개발 통합 엔진', 'brief.md의 명세를 읽어 백그라운드 환경에서 타겟 컴포넌트를 직접 통합 및 커밋합니다.')" class="file-item-doc text-zinc-500 hover:text-zinc-200 cursor-pointer py-0.5 flex items-center space-x-1.5">
+                  <span>📄</span> <span>dev.md</span>
+                </div>
+                <div onclick="showFileMeta('do.md', '단축 우회 수행 가이드', '형식적 문서화가 불필요한 마크업 및 가벼운 오탈자 조치를 처리하는 백그라운드 명령어입니다.')" class="file-item-doc text-zinc-500 hover:text-zinc-200 cursor-pointer py-0.5 flex items-center space-x-1.5">
+                  <span>📄</span> <span>do.md</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- hooks/ -->
+            <div class="pl-4 space-y-1">
+              <div onclick="toggleFolderUi('dir-hooks', this)" class="flex items-center space-x-2 text-zinc-400 hover:text-zinc-100 cursor-pointer py-0.5">
+                <span class="folder-state-icon">▼</span> <span>📁 hooks/</span>
+              </div>
+              <div id="dir-hooks" class="pl-4 border-l border-zinc-900 ml-2 space-y-1">
+                <div onclick="showFileMeta('slack-notify.js', '웹훅 기반 이벤트 통지 스크립트', '정지(Stop), 질문(AskUserQuestion), 일반 통보 시점에 페이로드를 조립해 슬랙 채널에 전송합니다.')" class="file-item-doc text-zinc-500 hover:text-zinc-200 cursor-pointer py-0.5 flex items-center space-x-1.5">
+                  <span>⚡</span> <span>slack-notify.js</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- templates/ -->
+            <div class="pl-4 space-y-1">
+              <div onclick="toggleFolderUi('dir-templates', this)" class="flex items-center space-x-2 text-zinc-400 hover:text-zinc-100 cursor-pointer py-0.5">
+                <span class="folder-state-icon">▼</span> <span>📁 templates/</span>
+              </div>
+              <div id="dir-templates" class="pl-4 border-l border-zinc-900 ml-2 space-y-1">
+                <div onclick="showFileMeta('idea-template.html', '신규 기획 가시화 템플릿', '새로운 비즈니스 흐름을 대시보드 및 브라우저에서 리뷰할 수 있는 전용 와이어프레임 구조 파일입니다.')" class="file-item-doc text-zinc-500 hover:text-zinc-200 cursor-pointer py-0.5 flex items-center space-x-1.5">
+                  <span>🎨</span> <span>idea-template.html</span>
+                </div>
+                <div onclick="showFileMeta('design-template.html', '디자인 마크업 전용 리뷰어', '기존 UI 레이아웃의 점검 항목과 개선 제안 사항을 시각화해 상신하기 위한 템플릿입니다.')" class="file-item-doc text-zinc-500 hover:text-zinc-200 cursor-pointer py-0.5 flex items-center space-x-1.5">
+                  <span>🎨</span> <span>design-template.html</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description Inspector -->
+          <div class="lg:col-span-6 bg-zinc-900/40 p-5 rounded-xl border border-zinc-900 flex flex-col justify-between">
+            <div class="space-y-3">
+              <span class="text-[9px] text-zinc-500 font-mono font-bold block uppercase tracking-wider">FILE META INSPECTOR</span>
+              <h4 id="meta-filename" class="text-sm font-bold text-zinc-200 font-mono">commands/pm.md</h4>
+              <span id="meta-subtitle" class="text-[10px] text-indigo-400 bg-indigo-950/40 border border-indigo-900 px-2 py-0.5 rounded inline-block font-mono">기획 워크플로우 명세</span>
+              <p id="meta-desc" class="text-xs text-zinc-400 leading-relaxed pt-2">
+                사용자 질의를 설계 템플릿과 정적으로 결합하여 brief.md 결과물을 구성합니다. 이 파일은 요구사항을 명세 형태로 정형화하는 데 사용됩니다.
+              </p>
+            </div>
+
+            <div class="text-[11px] text-zinc-500 pt-6 border-t border-zinc-900 mt-6 leading-relaxed">
+              * 왼쪽 트리의 임의 파일을 선택하면 실시간 메타 데이터와 역할 서술이 연계 동기화됩니다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Configuration & Schema Tabs -->
+      <section id="schemas" class="scroll-mt-20 space-y-6 border-t border-zinc-900 pt-10">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-mono text-indigo-500 font-semibold">[06]</span>
+          <h2 class="text-xl font-bold text-zinc-100">공유 설정 및 히스토리 스키마</h2>
+        </div>
+        <p class="text-sm text-zinc-400 leading-relaxed max-w-3xl">
+          팀 개발 사양 정의 파일(<code class="text-zinc-300">settings.json</code>), 로컬 한정 기밀 설정(<code class="text-zinc-300">settings.local.json</code>) 및 대시보드 구동 이력의 실제 스펙입니다.
+        </p>
+
+        <!-- Tab Panel IDE Style -->
+        <div class="border border-zinc-900 rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-4 bg-zinc-900/30 border-b border-zinc-900">
+            <div class="flex space-x-1 py-2">
+              <button onclick="toggleConfigTab('settings')" id="cfg-tab-settings" class="cfg-tab-btn px-3 py-1 text-xs font-mono font-semibold rounded text-zinc-200 hover:text-zinc-100 hover:bg-zinc-900/50 transition">settings.json</button>
+              <button onclick="toggleConfigTab('local')" id="cfg-tab-local" class="cfg-tab-btn px-3 py-1 text-xs font-mono font-semibold rounded text-zinc-500 hover:text-zinc-100 hover:bg-zinc-900/50 transition">settings.local.json</button>
+              <button onclick="toggleConfigTab('history')" id="cfg-tab-history" class="cfg-tab-btn px-3 py-1 text-xs font-mono font-semibold rounded text-zinc-500 hover:text-zinc-100 hover:bg-zinc-900/50 transition">history.json</button>
+            </div>
+            <button onclick="copyActiveTabCode()" class="text-[10px] text-zinc-500 hover:text-zinc-300 flex items-center space-x-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+              <span>코드 복사</span>
+            </button>
+          </div>
+
+          <!-- Code Workspace Content -->
+          <div class="bg-zinc-950 p-6 text-xs overflow-x-auto leading-relaxed">
+            
+            <!-- settings.json -->
+            <pre id="code-content-settings" class="cfg-code-block block"><code class="text-zinc-300">{
+  <span class="text-indigo-400">"permissions"</span>: {
+    <span class="text-indigo-400">"allow"</span>: [
+      <span class="text-emerald-400">"Read"</span>,
+      <span class="text-emerald-400">"Edit"</span>,
+      <span class="text-emerald-400">"Write"</span>,
+      <span class="text-emerald-400">"Glob"</span>,
+      <span class="text-emerald-400">"Grep"</span>,
+      <span class="text-emerald-400">"Bash(*)"</span>
+    ],
+    <span class="text-indigo-400">"deny"</span>: [
+      <span class="text-rose-400">"Bash(rm -rf /)"</span>,
+      <span class="text-rose-400">"Write(.env)"</span>,
+      <span class="text-rose-400">"Write(*.pem)"</span>
+    ]
+  },
+  <span class="text-indigo-400">"hooks"</span>: {
+    <span class="text-indigo-400">"Stop"</span>: [
+      { <span class="text-indigo-400">"command"</span>: <span class="text-emerald-400">"node .claude/hooks/slack-notify.js"</span> }
+    ],
+    <span class="text-indigo-400">"Notification"</span>: [
+      { <span class="text-indigo-400">"command"</span>: <span class="text-emerald-400">"node .claude/hooks/slack-notify.js"</span> }
+    ]
+  }
+}</code></pre>
+
+            <!-- settings.local.json -->
+            <pre id="code-content-local" class="cfg-code-block hidden"><code class="text-zinc-300">{
+  <span class="text-indigo-400">"env"</span>: {
+    <span class="text-indigo-400">"SLACK_WEBHOOK_URL"</span>: <span class="text-emerald-400">"&lt;YOUR_SLACK_WEBHOOK_URL&gt;"</span>
+  }
+}</code></pre>
+
+            <!-- history.json -->
+            <pre id="code-content-history" class="cfg-code-block hidden"><code class="text-zinc-300">{
+  <span class="text-indigo-400">"id"</span>: <span class="text-emerald-400">"001-대시보드-개선"</span>,
+  <span class="text-indigo-400">"slug"</span>: <span class="text-emerald-400">"대시보드-개선"</span>,
+  <span class="text-indigo-400">"name"</span>: <span class="text-emerald-400">"대시보드 개선"</span>,
+  <span class="text-indigo-400">"path"</span>: <span class="text-emerald-400">"output/tasks/001-대시보드-개선"</span>,
+  <span class="text-indigo-400">"artifacts"</span>: [
+    <span class="text-emerald-400">"design.html"</span>,
+    <span class="text-emerald-400">"brief.md"</span>,
+    <span class="text-emerald-400">"complete.md"</span>
+  ],
+  <span class="text-indigo-400">"logs"</span>: [
+    {
+      <span class="text-indigo-400">"phase"</span>: <span class="text-emerald-400">"디자인"</span>,
+      <span class="text-indigo-400">"status"</span>: <span class="text-emerald-400">"완료"</span>,
+      <span class="text-indigo-400">"date"</span>: <span class="text-emerald-400">"2026-03-13"</span>,
+      <span class="text-indigo-400">"note"</span>: <span class="text-emerald-400">"..."</span>
+    }
+  ]
+}</code></pre>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Slack Hook Payloads -->
+      <section id="slack" class="scroll-mt-20 space-y-6 border-t border-zinc-900 pt-10">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-mono text-indigo-500 font-semibold">[07]</span>
+          <h2 class="text-xl font-bold text-zinc-100">Slack Webhook 연동 규격</h2>
+        </div>
+        <p class="text-sm text-zinc-400 leading-relaxed max-w-3xl">
+          <code class="text-zinc-300">slack-notify.js</code> 모듈이 상태에 따라 트리거하여 외부 메신저 채널에 동기화 요청을 전송하는 payload 구조 사양서입니다.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
+          <!-- Payload 1 -->
+          <div class="bg-zinc-950 border border-zinc-900 rounded-lg p-4 space-y-3">
+            <div class="flex justify-between items-center border-b border-zinc-900 pb-2">
+              <span class="text-emerald-400 font-bold">STATE // STOP (완료)</span>
+              <span class="text-[10px] text-zinc-500">Method: POST</span>
+            </div>
+            <pre class="text-[10px] text-zinc-400 leading-normal">{
+  "text": "✅ Claude Code 작업 종료 요약",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*[완료]* 008-로그인 기능 병합 완료\n빌드 테스트 최종 성공 건입니다."
+      }
+    }
+  ]
+}</pre>
+          </div>
+
+          <!-- Payload 2 -->
+          <div class="bg-zinc-950 border border-zinc-900 rounded-lg p-4 space-y-3">
+            <div class="flex justify-between items-center border-b border-zinc-900 pb-2">
+              <span class="text-amber-400 font-bold">STATE // QUESTION (질문 대기)</span>
+              <span class="text-[10px] text-zinc-500">Method: POST</span>
+            </div>
+            <pre class="text-[10px] text-zinc-400 leading-normal">{
+  "text": "🙋 Claude 의사결정 요청 대기",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*[질문]* 폰트 로드 형식을 Google Webfont로 정의할까요?"
+      }
+    }
+  ]
+}</pre>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Footer Info block -->
+  <footer class="border-t border-zinc-900 bg-zinc-950 py-6 text-center text-[11px] text-zinc-600 font-mono">
+    <div class="max-w-7xl mx-auto px-4 space-y-1">
+      <p>CLAUDE CODE WORKFLOW SYSTEM ARCHITECTURE SPECIFICATION</p>
+      <p class="text-[10px] text-zinc-700">이 문서는 프로젝트 기록 및 세부 자산의 한눈에 파악을 보조하기 위해 정밀 컴파일된 HTML 명세 가이드북입니다.</p>
+    </div>
+  </footer>
+
+  <!-- Script Logic for Sidebar Highlights and Tab Controls -->
+  <script>
+    // Intersection Observer for highlighting current section in Sidebar ToC
+    document.addEventListener('DOMContentLoaded', () => {
+      const navLinks = document.querySelectorAll('.nav-link');
+      const sections = document.querySelectorAll('section');
+
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -60% 0px',
+        threshold: 0
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            navLinks.forEach(link => {
+              if (link.getAttribute('href') === `#${id}`) {
+                link.classList.add('active-nav-link');
+              } else {
+                link.classList.remove('active-nav-link');
+              }
+            });
+          }
+        });
+      }, observerOptions);
+
+      sections.forEach(section => observer.observe(section));
+
+      // Key Listener: Ctrl + / to focus search
+      window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === '/') {
+          e.preventDefault();
+          document.getElementById('doc-search').focus();
+        }
+      });
+    });
+
+    // Simple Documentation Search & Highlight filter
+    function searchDocumentation() {
+      const query = document.getElementById('doc-search').value.toLowerCase();
+      const sections = document.querySelectorAll('main > section');
+
+      sections.forEach(section => {
+        const textContent = section.innerText.toLowerCase();
+        if (textContent.includes(query)) {
+          section.style.opacity = '1';
+          section.style.filter = 'none';
+        } else {
+          section.style.opacity = '0.35';
+          section.style.filter = 'grayscale(30%)';
+        }
+      });
+    }
+
+    // Interactive Architecture flow block detail
+    const FLOW_LOGS = {
+      req: {
+        header: '초기 요구사항 전달 (Foreground / User)',
+        body: '사용자가 CLI에 직접 아이디어나 변경사항을 지시하는 단계입니다. 이 명령어는 .claude 프레임워크가 읽을 수 있도록 세그먼트 데이터 구조로 구체화되기 이전의 기틀이 됩니다.'
+      },
+      pm: {
+        header: '기획안 구체화 (/pm 커맨드)',
+        body: '질의응답을 주도적으로 돌리며 추가하려는 피처의 요구 사양과 성격을 분석하여 draft 형태를 갖춘 뒤, 최종 명세 파일인 output/tasks/.../brief.md로 고속 배출 및 잠금 대기 처리합니다.'
+      },
+      dev: {
+        header: '백그라운드 자동 코딩 (/dev 커맨드)',
+        body: '승인 마크업이 완료된 task를 백그라운드 스택으로 인계하여 소스 파싱 및 파일 생성을 처리합니다. 에이전트가 코드를 정밀 편집하며, Pre-build 점검 단계와 곧바로 동기화합니다.'
+      },
+      verify: {
+        header: '빌드 완결성 확인 및 이력 보존 (complete.md)',
+        body: '작성된 코드가 프로덕션 환경의 린트와 컴파일 과정을 정상 통과하는지 CLI 빌드를 자동 추적 점검합니다. 빌드 검증 성공 판정이 난 경우 complete.md를 쓰고 완료 상태로 정리합니다.'
+      }
+    };
+
+    function selectFlowStep(stepKey) {
+      // Styling Reset on visual blocks
+      document.querySelectorAll('.flow-step-block').forEach(block => {
+        block.classList.remove('border-indigo-500', 'bg-zinc-900', 'ring-2', 'ring-indigo-500/20');
+        block.classList.add('bg-zinc-900/40', 'border-zinc-850');
+      });
+
+      const selectedBlock = document.getElementById(`flow-${stepKey}`);
+      if (selectedBlock) {
+        selectedBlock.classList.remove('bg-zinc-900/40', 'border-zinc-850');
+        selectedBlock.classList.add('border-indigo-500', 'bg-zinc-900', 'ring-2', 'ring-indigo-500/20');
+      }
+
+      // Populate log console
+      const log = FLOW_LOGS[stepKey];
+      document.getElementById('flow-log-header').textContent = log.header;
+      document.getElementById('flow-log-body').textContent = log.body;
+    }
+
+    // Toggle Next.js Commands Tabs
+    function toggleNextTab(tabId) {
+      document.querySelectorAll('.next-tab-btn').forEach(btn => {
+        btn.classList.remove('border-indigo-500', 'text-zinc-100');
+        btn.classList.add('border-transparent', 'text-zinc-500', 'hover:text-zinc-200');
+      });
+      document.getElementById(`tab-btn-${tabId}`).classList.remove('border-transparent', 'text-zinc-500');
+      document.getElementById(`tab-btn-${tabId}`).classList.add('border-indigo-500', 'text-zinc-100');
+
+      document.querySelectorAll('.next-tab-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.getElementById(`content-${tabId}`).classList.remove('hidden');
+    }
+
+    // Toggle Directory Folders in Tree View
+    function toggleFolderUi(folderId, triggerElement) {
+      const folder = document.getElementById(folderId);
+      const icon = triggerElement.querySelector('.folder-state-icon');
+      if (folder.classList.contains('hidden')) {
+        folder.classList.remove('hidden');
+        icon.textContent = '▼';
+      } else {
+        folder.classList.add('hidden');
+        icon.textContent = '▶';
+      }
+    }
+
+    // Show File Metadata in Directory inspector
+    function showFileMeta(filename, subtitle, description) {
+      document.querySelectorAll('.file-item-doc').forEach(item => {
+        item.classList.remove('text-zinc-200', 'font-medium');
+        item.classList.add('text-zinc-500');
+      });
+      event.currentTarget.classList.remove('text-zinc-500');
+      event.currentTarget.classList.add('text-zinc-200', 'font-medium');
+
+      document.getElementById('meta-filename').textContent = filename;
+      document.getElementById('meta-subtitle').textContent = subtitle;
+      document.getElementById('meta-desc').textContent = description;
+    }
+
+    // Switch JSON Config Tabs
+    let currentConfigTab = 'settings';
+    function toggleConfigTab(tabKey) {
+      currentConfigTab = tabKey;
+      document.querySelectorAll('.cfg-tab-btn').forEach(btn => {
+        btn.classList.remove('text-zinc-200');
+        btn.classList.add('text-zinc-500');
+      });
+      document.getElementById(`cfg-tab-${tabKey}`).classList.remove('text-zinc-500');
+      document.getElementById(`cfg-tab-${tabKey}`).classList.add('text-zinc-200');
+
+      document.querySelectorAll('.cfg-code-block').forEach(code => {
+        code.classList.add('hidden');
+      });
+      document.getElementById(`code-content-${tabKey}`).classList.remove('hidden');
+    }
+
+    // Clipboard Copy Helper for Config tab
+    function copyActiveTabCode() {
+      const activePre = document.getElementById(`code-content-${currentConfigTab}`);
+      if (activePre) {
+        const text = activePre.innerText;
+        const tempInput = document.createElement('textarea');
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+
+        showToast(`${currentConfigTab === 'local' ? 'settings.local.json' : currentConfigTab + '.json'} 본문이 복사되었습니다.`);
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toast-message');
+      msgEl.textContent = message;
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
