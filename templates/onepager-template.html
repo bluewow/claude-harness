@@ -18,7 +18,6 @@ tailwind.config = {
         card: '#FFFFFF',
         border: '#E2E8F0',
         accent: '#10B981',
-        amber: { DEFAULT:'#F59E0B', light:'#FEF3C7' },
       },
     }
   }
@@ -28,165 +27,101 @@ tailwind.config = {
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css');
   body { font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif; }
   .soft-card { background:#fff; border-radius:16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06); border:1px solid #E2E8F0; }
-  .dark-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; }
-  .mobile-frame { width:340px; min-height:600px; border-radius:24px; border:6px solid #1E293B; overflow:hidden; background:#F8FAFC; flex-shrink:0; position:relative; }
-  .mobile-notch { width:100px; height:20px; background:#1E293B; border-radius:0 0 14px 14px; margin:0 auto; }
-  .admin-frame { width:480px; min-height:420px; border-radius:16px; border:4px solid #CBD5E1; overflow:hidden; background:#F8FAFC; flex-shrink:0; }
-  .flow-circle { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; flex-shrink:0; }
-  .flow-arrow { color:#A5B4FC; font-size:20px; flex-shrink:0; }
+  .flow-circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; }
   .tag { display:inline-block; padding:3px 10px; border-radius:9999px; font-size:11px; font-weight:500; }
   .badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:9999px; font-size:10px; font-weight:600; }
-  .screen-label { font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#94A3B8; text-align:center; margin-top:10px; }
-  .section-divider { height:1px; background:linear-gradient(90deg, transparent, #E2E8F0 20%, #E2E8F0 80%, transparent); margin:40px 0; }
+  .section-divider { height:1px; background:linear-gradient(90deg, transparent, #E2E8F0 20%, #E2E8F0 80%, transparent); margin:32px 0; }
   .toc-link { color:#4F46E5; text-decoration:none; font-size:13px; font-weight:500; }
   .toc-link:hover { text-decoration:underline; }
-  .metric-card { text-align:center; padding:20px 16px; }
-  .quote-box { border-left:3px solid #818CF8; padding-left:16px; font-style:italic; }
   .comparison-table td, .comparison-table th { padding:10px 14px; text-align:left; font-size:12px; border-bottom:1px solid #E2E8F0; }
   .comparison-table th { font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.05em; font-size:10px; background:#F8FAFC; }
-  @media print { body { font-size:11px; } .mobile-frame, .admin-frame { page-break-inside:avoid; } }
+  @media print { body { font-size:11px; } }
 </style>
 </head>
 <body class="bg-bg text-fg">
 
-<div class="max-w-[900px] mx-auto px-5 py-12">
+<div class="max-w-[900px] mx-auto px-5 py-10">
 
   <!-- ═══════════════════════════════════════════════ -->
   <!-- COVER                                          -->
   <!-- ═══════════════════════════════════════════════ -->
-  <header class="mb-6">
-    <div class="flex items-center gap-3 mb-4">
-      <span style="font-weight:900;font-size:28px;color:{{BRAND_COLOR}};">{{PROJECT_NAME}}</span>
+  <header class="mb-8">
+    <div class="flex items-center gap-3 mb-3">
+      <span style="font-weight:900;font-size:26px;color:{{BRAND_COLOR}};">{{PROJECT_NAME}}</span>
       <span style="font-size:10px;font-weight:700;background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.25);color:#4F46E5;padding:3px 10px;border-radius:4px;letter-spacing:0.06em;">ONE-PAGER</span>
     </div>
-    <h1 class="text-3xl font-bold text-fg mb-2">{{HEADER_TITLE}}</h1>
+    <h1 class="text-2xl font-bold text-fg mb-2">{{HEADER_TITLE}}</h1>
     <p class="text-sm text-muted-fg leading-relaxed max-w-2xl">{{HEADER_SUBTITLE}}</p>
-    <p class="text-xs text-muted-fg mt-2">{{DATE}} | Confidential</p>
+    <p class="text-xs text-muted-fg mt-2">{{DATE}}</p>
   </header>
 
-  <!-- TOC -->
-  <div class="soft-card p-5 mb-10">
-    <p class="text-xs uppercase tracking-wider text-primary mb-3">Table of Contents</p>
-    <div class="grid sm:grid-cols-3 gap-2 text-sm">
-      {{TOC_LINKS}}
-      <!--
-        형식: <a href="#section-id" class="toc-link">1. 섹션명</a>
-        권장 섹션 (필요에 따라 추가/제거):
-          1. Problem & Opportunity
-          2. Solution — 핵심 가치
-          3. Target User
-          4. User Scenarios
-          5. Core Features
-          6. Core Lifecycle (해당 시 — 미션, 주문 등 핵심 루프)
-          7. User Flow
-          8. Wireframe
-          9. Information Architecture
-          10. Design Direction
-          11. Tech Architecture
-          12. Business Model
-          13. Risks & Mitigations
-          14. Roadmap
-      -->
+  <!-- TOC (간단) -->
+  <div class="soft-card p-4 mb-8">
+    <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+      <a href="#overview" class="toc-link">1. Overview</a>
+      <a href="#target" class="toc-link">2. Target User</a>
+      <a href="#features" class="toc-link">3. Core Features</a>
+      <a href="#flow" class="toc-link">4. How It Works</a>
+      <a href="#tech" class="toc-link">5. Tech & Stack</a>
+      <a href="#glance" class="toc-link">6. At a Glance</a>
     </div>
   </div>
 
-  <div class="section-divider"></div>
-
   <!-- ═══════════════════════════════════════════════ -->
-  <!-- 01 — PROBLEM & OPPORTUNITY                     -->
+  <!-- 01 — OVERVIEW (Problem + Solution + Core Value) -->
   <!-- ═══════════════════════════════════════════════ -->
-  <div id="problem" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">01 — Problem & Opportunity</p>
-
-    <div class="grid sm:grid-cols-2 gap-4 mb-6">
-      {{PROBLEM_CARDS}}
-      <!--
-        형식 (Pain Point 그룹별 1장):
-        <div class="soft-card p-5">
-          <p class="text-xs font-semibold text-red-500 mb-3">그룹 라벨</p>
-          <ul class="text-sm space-y-3 text-fg leading-relaxed">
-            <li class="flex gap-2"><span class="text-red-400 flex-shrink-0">&#x2716;</span><span>문제점 서술</span></li>
-          </ul>
-        </div>
-      -->
-    </div>
-
-    <!-- 시장 기회 (선택) -->
-    <div class="soft-card p-5">
-      <p class="text-xs font-semibold text-primary mb-3">Market Opportunity</p>
-      <div class="grid sm:grid-cols-3 gap-4">
-        {{MARKET_METRICS}}
-        <!--
-          형식:
-          <div class="metric-card bg-primary-50 rounded-xl">
-            <p class="text-2xl font-bold text-primary">수치</p>
-            <p class="text-xs text-muted-fg mt-1">설명</p>
-          </div>
-        -->
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- 02 — SOLUTION                                  -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="solution" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">02 — Solution — 핵심 가치</p>
+  <div id="overview" class="mb-10">
+    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">01 — Overview</p>
 
     <!-- 핵심 한 줄 -->
-    <div class="soft-card p-6 mb-6" style="background:linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 100%);">
-      <div class="text-center mb-6">
-        <p class="text-lg font-bold text-fg mb-2">"{{CORE_VALUE_STATEMENT}}"</p>
-        <p class="text-sm text-muted-fg">{{CORE_VALUE_SUB}}</p>
-      </div>
-      <div class="grid sm:grid-cols-3 gap-6 text-center">
-        {{VALUE_PILLARS}}
-        <!--
-          형식 (3개 권장):
-          <div>
-            <div class="text-3xl mb-2">EMOJI</div>
-            <p class="text-sm font-semibold mb-1">필러 이름</p>
-            <p class="text-xs text-muted-fg">설명</p>
-          </div>
-        -->
-      </div>
+    <div class="soft-card p-6 mb-4" style="background:linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 100%);">
+      <p class="text-lg font-bold text-fg mb-2 text-center">"{{CORE_VALUE_STATEMENT}}"</p>
+      <p class="text-sm text-muted-fg text-center">{{CORE_VALUE_SUB}}</p>
     </div>
 
-    <!-- 핵심 기능 요약 카드 (max 3) -->
-    <div class="grid sm:grid-cols-3 gap-4">
-      {{SOLUTION_CARDS}}
-      <!--
-        형식:
-        <div class="soft-card p-5 text-center">
-          <div class="text-4xl mb-3">EMOJI</div>
-          <h3 class="text-base font-semibold mb-2">기능명</h3>
-          <p class="text-xs text-muted-fg">한줄 설명</p>
-        </div>
-      -->
+    <!-- Problem → Solution 한눈에 -->
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="soft-card p-5">
+        <p class="text-xs font-semibold text-red-500 mb-3">Problem</p>
+        <ul class="text-sm space-y-2 text-fg leading-relaxed">
+          {{PROBLEM_BULLETS}}
+          <!--
+            형식 (3개 권장):
+            <li class="flex gap-2"><span class="text-red-400 flex-shrink-0">&#x2716;</span><span>문제점 한 줄</span></li>
+          -->
+        </ul>
+      </div>
+      <div class="soft-card p-5">
+        <p class="text-xs font-semibold text-accent mb-3">Solution</p>
+        <ul class="text-sm space-y-2 text-fg leading-relaxed">
+          {{SOLUTION_BULLETS}}
+          <!--
+            형식 (3개 권장, Problem과 1:1 매칭 권장):
+            <li class="flex gap-2"><span class="text-accent flex-shrink-0">&#x2713;</span><span>해결 방법 한 줄</span></li>
+          -->
+        </ul>
+      </div>
     </div>
   </div>
 
   <div class="section-divider"></div>
 
   <!-- ═══════════════════════════════════════════════ -->
-  <!-- 03 — TARGET USER                               -->
+  <!-- 02 — TARGET USER                                -->
   <!-- ═══════════════════════════════════════════════ -->
   <div id="target" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">03 — Target User</p>
+    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">02 — Target User</p>
 
     <div class="grid sm:grid-cols-2 gap-4">
       {{TARGET_CARDS}}
       <!--
-        형식 (유저 타입별 1장):
+        형식 (1~3장, 핵심 페르소나만):
         <div class="soft-card p-5">
-          <div class="bg-primary-50 rounded-xl p-4 mb-4">
-            <p class="text-sm font-bold text-fg mb-1">EMOJI 페르소나명 (역할)</p>
-            <p class="text-xs text-muted-fg">한줄 설명</p>
-          </div>
-          <div class="space-y-2 text-xs text-muted-fg">
-            <p><strong class="text-fg">항목:</strong> 내용</p>
+          <p class="text-sm font-bold text-fg mb-1">EMOJI 페르소나 (역할)</p>
+          <p class="text-xs text-muted-fg mb-3">한 줄 소개</p>
+          <div class="text-xs text-muted-fg space-y-1">
+            <p><strong class="text-fg">Pain:</strong> 핵심 고통</p>
+            <p><strong class="text-fg">Goal:</strong> 원하는 것</p>
           </div>
         </div>
       -->
@@ -196,192 +131,57 @@ tailwind.config = {
   <div class="section-divider"></div>
 
   <!-- ═══════════════════════════════════════════════ -->
-  <!-- 04 — USER SCENARIOS                            -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="scenario" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">04 — User Scenarios</p>
-
-    <div class="space-y-4">
-      {{SCENARIO_CARDS}}
-      <!--
-        형식 (2~4개 권장):
-        <div class="soft-card p-5">
-          <div class="flex items-start gap-3">
-            <div class="flow-circle bg-primary-100 text-primary-700 flex-shrink-0 text-sm">1</div>
-            <div>
-              <p class="text-sm font-semibold mb-1">페르소나 이름 + 한줄 소개</p>
-              <div class="quote-box text-xs text-muted-fg mb-3">
-                "유저의 목소리 (Pain Point 인용)"
-              </div>
-              <p class="text-xs text-muted-fg leading-relaxed">
-                → 플랫폼에서의 여정을 서술 (가입 → 핵심 액션 → 가치 획득)
-              </p>
-            </div>
-          </div>
-        </div>
-      -->
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- 05 — CORE FEATURES                             -->
+  <!-- 03 — CORE FEATURES                              -->
   <!-- ═══════════════════════════════════════════════ -->
   <div id="features" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">05 — Core Features</p>
+    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">03 — Core Features</p>
 
     <div class="soft-card p-6">
-      <div style="overflow-x:auto">
-        <table class="comparison-table w-full">
-          <thead>
+      <table class="comparison-table w-full">
+        <thead>
+          <tr>
+            <th style="width:25%">기능</th>
+            <th style="width:50%">설명</th>
+            <th style="width:25%">대상</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{FEATURE_ROWS}}
+          <!--
+            형식 (3~6개 핵심만):
             <tr>
-              <th style="width:18%">기능명</th>
-              <th style="width:22%">설명</th>
-              <th style="width:25%">작동 방식</th>
-              <th style="width:18%">제공 가치</th>
-              <th style="width:17%">대상</th>
+              <td style="font-weight:700;color:#0F172A">EMOJI 기능명</td>
+              <td>한 줄 설명 — 어떻게 작동하고 어떤 가치를 주는지</td>
+              <td><span class="badge bg-primary-100 text-primary-700">유저타입</span></td>
             </tr>
-          </thead>
-          <tbody>
-            {{FEATURE_ROWS}}
-            <!--
-              형식:
-              <tr>
-                <td style="font-weight:700;color:#0F172A">EMOJI 기능명</td>
-                <td>설명</td>
-                <td>작동 방식</td>
-                <td>제공 가치</td>
-                <td><span class="badge bg-primary-100 text-primary-700">유저타입</span></td>
-              </tr>
-            -->
-          </tbody>
-        </table>
-      </div>
+          -->
+        </tbody>
+      </table>
     </div>
   </div>
 
   <div class="section-divider"></div>
 
   <!-- ═══════════════════════════════════════════════ -->
-  <!-- 06 — CORE LIFECYCLE (선택)                      -->
-  <!-- 제품에 순환 구조가 있을 때 사용 (미션, 주문, 거래 등)  -->
+  <!-- 04 — HOW IT WORKS (User Flow / Lifecycle)       -->
   <!-- ═══════════════════════════════════════════════ -->
-  <div id="lifecycle" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">06 — Core Lifecycle</p>
+  <div id="flow" class="mb-10">
+    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">04 — How It Works</p>
 
     <div class="soft-card p-6">
-      <p class="text-xs text-muted-fg mb-4">{{LIFECYCLE_DESCRIPTION}}</p>
+      <p class="text-xs text-muted-fg mb-5">{{FLOW_DESCRIPTION}}</p>
 
-      <!-- 타임라인 -->
-      <div class="flex items-center gap-0 mb-6" style="overflow-x:auto;">
-        {{LIFECYCLE_STEPS}}
+      <!-- 단일 핵심 흐름 (4~6 단계) -->
+      <div class="flex items-center gap-0 mb-2" style="overflow-x:auto;">
+        {{FLOW_STEPS}}
         <!--
           형식 (단계 + 화살표 반복):
-          <div class="text-center flex-1 min-w-[100px]">
-            <div class="mx-auto w-12 h-12 rounded-xl flex items-center justify-center text-white text-sm font-bold" style="background:#COLOR;">N</div>
+          <div class="text-center flex-1 min-w-[110px]">
+            <div class="mx-auto w-11 h-11 rounded-xl flex items-center justify-center text-white text-sm font-bold" style="background:#4F46E5;">1</div>
             <p class="text-xs font-semibold mt-2">단계명</p>
             <p class="text-[10px] text-muted-fg">부연 설명</p>
           </div>
-          <div class="h-0.5 flex-shrink-0 w-6" style="background:linear-gradient(90deg,#FROM,#TO);"></div>
-        -->
-      </div>
-
-      <!-- 부가 설명 (평가 시스템, 상태 전이 등) -->
-      <div class="bg-muted rounded-xl p-4">
-        {{LIFECYCLE_DETAILS}}
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- 07 — USER FLOW                                 -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="flow" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">07 — User Flow</p>
-
-    <div class="grid sm:grid-cols-2 gap-4">
-      {{USER_FLOW_COLUMNS}}
-      <!--
-        형식 (유저 타입별 1열):
-        <div class="soft-card p-6">
-          <p class="text-xs uppercase tracking-wider text-primary mb-4">Flow 이름</p>
-          <div class="space-y-3">
-            <div class="flex items-start gap-3">
-              <div class="flow-circle bg-primary-100 text-primary-700 text-xs w-7 h-7">1</div>
-              <div>
-                <p class="text-sm font-medium">단계명</p>
-                <p class="text-xs text-muted-fg">부연 설명</p>
-              </div>
-            </div>
-            <div class="w-px h-4 bg-border ml-[13px]"></div>
-            (반복)
-          </div>
-        </div>
-      -->
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- 08 — WIREFRAME                                 -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="wireframe" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">08 — Wireframe</p>
-    <p class="text-xs text-muted-fg mb-4">{{WIREFRAME_DESCRIPTION}}</p>
-
-    <div class="flex gap-6 overflow-x-auto pb-6">
-      {{WIREFRAME_SCREENS}}
-      <!--
-        형식 (모바일 화면):
-        <div>
-          <div class="mobile-frame">
-            <div class="mobile-notch"></div>
-            <div style="padding:14px;">
-              (화면 내용 — inline style로 구성)
-            </div>
-          </div>
-          <p class="screen-label">화면 이름</p>
-        </div>
-
-        형식 (데스크탑/어드민 화면):
-        <div>
-          <div class="admin-frame">
-            <div style="padding:20px;">
-              (화면 내용)
-            </div>
-          </div>
-          <p class="screen-label">화면 이름</p>
-        </div>
-      -->
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- 09 — INFORMATION ARCHITECTURE                  -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="ia" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">09 — Information Architecture</p>
-
-    <div class="soft-card p-6">
-      <div class="grid sm:grid-cols-3 gap-6">
-        {{IA_COLUMNS}}
-        <!--
-          형식 (역할별 1열):
-          <div>
-            <p class="text-xs font-semibold mb-3" style="color:#COLOR;">EMOJI 역할명</p>
-            <ul class="text-xs text-muted-fg space-y-2">
-              <li class="flex gap-2">
-                <span style="color:#COLOR">&#x2500;</span>
-                <strong class="text-fg">메뉴명</strong> — 설명
-              </li>
-            </ul>
-          </div>
+          <div class="h-0.5 flex-shrink-0 w-5" style="background:linear-gradient(90deg,#4F46E5,#6366F1);"></div>
         -->
       </div>
     </div>
@@ -390,238 +190,78 @@ tailwind.config = {
   <div class="section-divider"></div>
 
   <!-- ═══════════════════════════════════════════════ -->
-  <!-- 10 — DESIGN DIRECTION                          -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="design" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">10 — Design Direction</p>
-
-    <div class="soft-card p-6">
-      <div class="flex gap-2 mb-5 flex-wrap">
-        {{MOOD_TAGS}}
-        <!-- 형식: <span class="tag bg-primary-100 text-primary">키워드</span> -->
-      </div>
-
-      {{COLOR_PALETTE_SECTIONS}}
-      <!--
-        형식 (테마별):
-        <p class="text-xs font-semibold mb-3">테마 이름</p>
-        <div class="flex gap-3 mb-4 flex-wrap items-center">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg" style="background:#HEX" title="이름"></div>
-            <p class="text-[10px] text-muted-fg">#HEX<br>용도</p>
-          </div>
-        </div>
-      -->
-
-      <p class="text-xs text-muted-fg">{{DESIGN_NOTE}}</p>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- 11 — TECH ARCHITECTURE                         -->
+  <!-- 05 — TECH & STACK                               -->
   <!-- ═══════════════════════════════════════════════ -->
   <div id="tech" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">11 — Tech Architecture</p>
+    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">05 — Tech & Stack</p>
 
-    <div class="grid sm:grid-cols-2 gap-4 mb-4">
+    <div class="grid sm:grid-cols-2 gap-4">
       <div class="soft-card p-5">
         <p class="text-xs font-semibold text-primary mb-3">Tech Stack</p>
         <div class="space-y-2 text-xs">
           {{TECH_STACK_ROWS}}
           <!--
-            형식:
+            형식 (Frontend, Backend, DB, Infra 등 핵심만):
             <div class="flex justify-between">
-              <span class="text-muted-fg">항목</span>
+              <span class="text-muted-fg">Frontend</span>
               <span class="font-semibold">기술명</span>
             </div>
           -->
         </div>
       </div>
       <div class="soft-card p-5">
-        <p class="text-xs font-semibold text-primary mb-3">Architecture</p>
+        <p class="text-xs font-semibold text-primary mb-3">Architecture Notes</p>
         <div class="text-xs text-muted-fg space-y-2">
           {{ARCHITECTURE_NOTES}}
           <!--
-            형식:
+            형식 (2~3개 핵심 포인트):
             <p><strong class="text-fg">포인트</strong> — 설명</p>
           -->
         </div>
       </div>
     </div>
-
-    <!-- Data Model (선택) -->
-    <div class="soft-card p-5">
-      <p class="text-xs font-semibold text-primary mb-3">Data Model (Core)</p>
-      <div style="overflow-x:auto;">
-        {{DATA_MODEL_DIAGRAM}}
-        <!--
-          형식 (엔터티 블록 나열):
-          <div style="display:flex;gap:12px;align-items:flex-start;min-width:700px;">
-            <div style="background:#EEF2FF;border:2px solid #C7D2FE;border-radius:10px;padding:12px;min-width:140px;">
-              <p style="font-size:11px;font-weight:700;color:#4F46E5;">Entity</p>
-              <div style="font-size:9px;color:#64748B;"><p>field1, field2</p></div>
-            </div>
-            <div style="padding-top:20px;"><span style="color:#A5B4FC;font-size:16px;">&rarr;</span></div>
-            (반복)
-          </div>
-        -->
-      </div>
-    </div>
   </div>
 
   <div class="section-divider"></div>
 
   <!-- ═══════════════════════════════════════════════ -->
-  <!-- 12 — BUSINESS MODEL                            -->
+  <!-- 06 — AT A GLANCE (BM + Roadmap 요약)            -->
+  <!-- 한 카드로 비즈니스/현재 상태 요약                  -->
   <!-- ═══════════════════════════════════════════════ -->
-  <div id="bm" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">12 — Business Model</p>
+  <div id="glance" class="mb-10">
+    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">06 — At a Glance</p>
 
-    <div class="grid sm:grid-cols-2 gap-4 mb-4">
+    <div class="grid sm:grid-cols-3 gap-4">
       <div class="soft-card p-5">
-        <p class="text-xs font-semibold text-primary mb-3">Revenue Streams</p>
-        <div class="space-y-3">
-          {{REVENUE_STREAMS}}
-          <!--
-            형식:
-            <div class="flex items-start gap-3">
-              <div class="flow-circle bg-primary-100 text-primary-700 text-xs w-8 h-8 flex-shrink-0">B1</div>
-              <div>
-                <p class="text-sm font-semibold">수익원 이름</p>
-                <p class="text-xs text-muted-fg">설명</p>
-              </div>
-            </div>
-          -->
-        </div>
+        <p class="text-xs font-semibold text-primary mb-2">Business</p>
+        <p class="text-xs text-muted-fg leading-relaxed">{{BUSINESS_SUMMARY}}</p>
+        <!-- 형식: 수익 모델 한 줄 + 핵심 KPI 1~2개 -->
       </div>
       <div class="soft-card p-5">
-        <p class="text-xs font-semibold text-primary mb-3">Key Metrics (KPI)</p>
-        <div class="space-y-3 text-xs">
-          {{KPI_CARDS}}
-          <!--
-            형식:
-            <div class="bg-muted rounded-xl p-3">
-              <p class="font-semibold text-fg">카테고리</p>
-              <p class="text-muted-fg">지표 나열</p>
-            </div>
-          -->
-        </div>
+        <p class="text-xs font-semibold text-primary mb-2">Status</p>
+        <p class="text-xs text-muted-fg leading-relaxed">{{STATUS_SUMMARY}}</p>
+        <!-- 형식: 현재 단계 (MVP / Beta / Live 등) + 다음 마일스톤 -->
       </div>
-    </div>
-
-    <!-- 경쟁사 비교 (선택) -->
-    <div class="soft-card p-6">
-      <p class="text-xs font-semibold text-primary mb-3">Competitive Landscape</p>
-      <div style="overflow-x:auto">
-        <table class="comparison-table w-full">
-          <thead>
-            <tr>
-              {{COMPETITOR_HEADERS}}
-              <!-- 형식: <th>비교 항목</th><th>경쟁사1</th>...<th style="color:#4F46E5;background:#EEF2FF;">우리 제품</th> -->
-            </tr>
-          </thead>
-          <tbody>
-            {{COMPETITOR_ROWS}}
-            <!--
-              형식:
-              <tr>
-                <td style="font-weight:600">항목</td>
-                <td>경쟁사1 값</td>
-                <td style="color:#4F46E5;font-weight:600;">우리 값 (강조)</td>
-              </tr>
-            -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- 13 — RISKS & MITIGATIONS                       -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="risk" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">13 — Risks & Mitigations</p>
-
-    <div class="soft-card p-6">
-      <div style="overflow-x:auto">
-        <table class="comparison-table w-full">
-          <thead>
-            <tr>
-              <th style="width:8%">등급</th>
-              <th style="width:28%">리스크</th>
-              <th style="width:35%">영향</th>
-              <th style="width:29%">대응 방안</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{RISK_ROWS}}
-            <!--
-              형식:
-              <tr>
-                <td><span class="badge" style="background:#FEF2F2;color:#DC2626;">High</span></td>
-                  — 또는 style="background:#FEF3C7;color:#B45309;">Mid</span>
-                  — 또는 style="background:#F0FDF4;color:#16A34A;">Low</span>
-                <td style="font-weight:600">리스크 이름</td>
-                <td>영향 설명</td>
-                <td>대응 방안</td>
-              </tr>
-            -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- 14 — ROADMAP                                   -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div id="roadmap" class="mb-10">
-    <p class="text-xs uppercase tracking-[0.2em] text-primary mb-4">14 — Roadmap</p>
-
-    <div class="soft-card p-6">
-      <div class="space-y-6">
-        {{ROADMAP_PHASES}}
-        <!--
-          형식 (2~4 단계):
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 text-center">
-              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-sm font-bold" style="background:#COLOR;">P1</div>
-              <p class="text-[9px] text-muted-fg mt-1">시기</p>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm font-semibold text-fg">Phase N — 단계명</p>
-              <p class="text-xs text-muted-fg mb-2">설명</p>
-              <div class="flex gap-2 flex-wrap">
-                <span class="tag bg-green-100 text-green-700">&#x2713; 완료 항목</span>
-                <span class="tag bg-primary-100 text-primary">예정 항목</span>
-                <span class="tag bg-muted text-muted-fg">장기 항목</span>
-              </div>
-            </div>
-          </div>
-        -->
+      <div class="soft-card p-5">
+        <p class="text-xs font-semibold text-primary mb-2">Roadmap</p>
+        <p class="text-xs text-muted-fg leading-relaxed">{{ROADMAP_SUMMARY}}</p>
+        <!-- 형식: Phase 1 → 2 → 3 한 줄씩 -->
       </div>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════ -->
-  <!-- FOOTER                                         -->
+  <!-- FOOTER                                          -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="section-divider"></div>
 
-  <footer class="text-center py-6">
-    <div class="flex items-center justify-center gap-2 mb-3">
-      <span style="font-weight:900;font-size:20px;color:{{BRAND_COLOR}};">{{PROJECT_NAME}}</span>
+  <footer class="text-center py-4">
+    <div class="flex items-center justify-center gap-2 mb-2">
+      <span style="font-weight:900;font-size:18px;color:{{BRAND_COLOR}};">{{PROJECT_NAME}}</span>
       <span class="text-xs text-muted-fg">|</span>
       <span class="text-xs text-muted-fg">{{FOOTER_TAGLINE}}</span>
     </div>
-    <p class="text-xs text-muted-fg">{{DATE}} | Confidential — Internal Use Only</p>
-    <p class="text-[10px] text-muted-fg mt-1">{{TECH_STACK_SUMMARY}}</p>
+    <p class="text-[10px] text-muted-fg">{{DATE}} · {{TECH_STACK_SUMMARY}}</p>
   </footer>
 
 </div>

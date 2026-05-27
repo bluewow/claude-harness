@@ -4,7 +4,11 @@
   },
   "permissions": {
     "allow": [
-      "Edit(/.claude/skills/image-to-html/**)"
+      "Edit(/.claude/skills/image-to-html/**)",
+      "Bash(cp \"c:/project_2026/fit-day/.claude/templates/dashboard-template.html\" \"c:/project_2026/fit-day/dashboard-preview.html\")"
+    ],
+    "additionalDirectories": [
+      "c:\\project_2026\\fit-day\\.claude\\templates"
     ]
   }
 }

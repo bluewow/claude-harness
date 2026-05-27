@@ -44,13 +44,9 @@ Agent(
 ## Step 1: 사전 준비
 
 1. 루트 CLAUDE.md를 읽고 프로젝트 컨텍스트, 기술 스택, 구조, 스타일 가이드 파악
-2. CLAUDE.md가 없으면 "/init 실행이 필요합니다" 안내 후 중단
+2. CLAUDE.md가 없으면 "/setup:init 실행이 필요합니다" 안내 후 중단
 3. output/history.json을 읽어 기존 태스크 목록과 마지막 ID 번호 확인
-4. **디자인 레퍼런스 로드** — 디자인/UI 관련 작업 시 반드시 수행:
-   - `.claude/skills/design-inspiration/references/DESIGN.md`를 Read (디자인 시스템 규칙)
-   - `.claude/skills/design-inspiration/images/` 폴더의 이미지 파일을 Glob으로 탐색 후 Read (레퍼런스 이미지)
-   - 이미지가 없으면 DESIGN.md만으로 진행
-   - design.html 생성 시 DESIGN.md의 색상·타이포·컴포넌트 규칙을 반영할 것
+4. 디자인/UI 관련 요청이면 **design-system** 스킬을 활성화해 토큰·규칙을 먼저 로드 (idea.html/design.html 생성과 brief.md 의 스타일 명세에 반영)
 
 ## Step 2: 유형 감지
 

@@ -1,17 +1,39 @@
 ---
-description: "Next.js 프로젝트 설정 검사 — create-nextjs 기준으로 누락/오류 체크 + 자동 수정"
-argument-hint: "<옵션: --fix 자동 수정 | --report 리포트만>"
+description: "Next.js 프로젝트 설정 검사 — create-nextjs 기준으로 누락/오류 체크 후 사용자에게 수정 여부 확인"
+argument-hint: "(인자 불필요)"
 ---
 
 # Check Next.js Project Setup
 
-`/create-nextjs`가 제시하는 프로젝트 설정 기준으로 현재 프로젝트를 검사합니다.
-각 항목을 PASS / WARN / FAIL로 판정하고, `--fix` 옵션이면 FAIL 항목을 자동 수정합니다.
+`/setup:create-nextjs`가 제시하는 프로젝트 설정 기준으로 현재 프로젝트를 검사합니다.
+각 항목을 PASS / WARN / FAIL로 판정한 뒤, 발견된 WARN/FAIL 에 대해 사용자에게 수정 여부를 물어봅니다.
 
-**인자**: `$ARGUMENTS`
-- `--fix` — FAIL 항목을 자동으로 수정 (기본값)
-- `--report` — 리포트만 출력, 수정하지 않음
-- 인자 없음 — `--fix`와 동일하게 동작
+---
+
+## 실행 흐름
+
+1. **검사** — 아래 [검사 항목] 10개 영역을 순서대로 검사 (항상 실행)
+2. **결과 출력** — 검사 결과 테이블 + WARN/FAIL 상세 표시
+3. **수정 여부 확인** — WARN/FAIL이 1개 이상이면 `AskUserQuestion`으로 진행 방식을 묻는다:
+
+   ```
+   question: "발견된 항목을 어떻게 처리할까요?"
+   options:
+     - label: "모두 자동 수정"
+       description: "아래 명시된 [수정 동작]을 일괄 수행합니다 (설정 파일만, 비즈니스 코드 불변)"
+     - label: "항목별로 선택"
+       description: "각 WARN/FAIL 항목마다 수정 여부를 개별 확인"
+     - label: "수정 안 함 (리포트만)"
+       description: "결과만 확인하고 종료"
+   ```
+
+4. **수정 수행** — 선택에 따라 진행:
+   - **모두 자동 수정** → 각 검사 영역의 [수정 동작] 을 순차 수행
+   - **항목별로 선택** → WARN/FAIL 항목마다 `AskUserQuestion`으로 "이 항목을 수정할까요?" (Yes/No) 확인 후 수행
+   - **수정 안 함** → Step 5로 바로 이동
+5. **최종 리포트** — 어떤 항목이 수정됐고 어떤 항목이 남았는지 요약 출력
+
+**WARN/FAIL이 0개인 경우**: Step 3~4를 건너뛰고 "모두 통과 ✅" 메시지로 종료.
 
 ---
 
@@ -48,7 +70,7 @@ package.json의 dependencies / devDependencies를 읽고 확인:
 | `eslint` | devDependencies | 존재 | WARN |
 | `shadcn` | dependencies | 존재 | WARN — "shadcn/ui 미설치" |
 
-**--fix 동작**: FAIL/WARN 패키지를 `pnpm add` / `pnpm add -D`로 설치
+**수정 동작**: FAIL/WARN 패키지를 `pnpm add` / `pnpm add -D`로 설치
 
 ---
 
@@ -67,7 +89,7 @@ package.json `scripts` 필드 확인:
 | `format:check` | `prettier --check` | WARN if 없음 |
 | `typecheck` | `tsc --noEmit` | WARN if 없음 |
 
-**--fix 동작**: 누락된 스크립트를 package.json에 추가
+**수정 동작**: 누락된 스크립트를 package.json에 추가
 
 ---
 
@@ -87,7 +109,7 @@ package.json `scripts` 필드 확인:
 | `src/stores/` | Zustand 스토어 | WARN if 없음 |
 | `src/types/` | 전역 타입 | WARN if 없음 |
 
-**--fix 동작**: 누락된 디렉토리를 `mkdir -p`로 생성
+**수정 동작**: 누락된 디렉토리를 `mkdir -p`로 생성
 
 ---
 
@@ -105,7 +127,7 @@ package.json `scripts` 필드 확인:
 | `src/providers/query-provider.tsx` | WARN if 없음 — "@tanstack/react-query가 있지만 Provider 없음" |
 | `components.json` | WARN if 없음 — "shadcn/ui 초기화 안 됨" |
 
-**--fix 동작**: FAIL 파일 중 `not-found.tsx`, `error.tsx`, `loading.tsx`는 기본 템플릿으로 생성. 나머지는 수동 대응 안내.
+**수정 동작**: FAIL 파일 중 `not-found.tsx`, `error.tsx`, `loading.tsx`는 기본 템플릿으로 생성. 나머지는 수동 대응 안내.
 
 ---
 
@@ -124,7 +146,7 @@ package.json `scripts` 필드 확인:
 | `--destructive` 변수 | `:root`에 정의됨 | WARN |
 | 테마 주석 | `THEME COLORS` 주석 존재 | WARN — "테마 섹션 구분 주석 없음" |
 
-**--fix 동작**: 주석만 자동 추가. 변수 누락은 안내만 출력.
+**수정 동작**: 주석만 자동 추가. 변수 누락은 안내만 출력.
 
 ---
 
@@ -158,9 +180,9 @@ package.json `scripts` 필드 확인:
 | `.env.example` | WARN if 없음 |
 | `.env.local` | WARN if 없음 (안내만, 생성하지 않음) |
 | `eslint.config.*` | WARN if 없음 |
-| `CLAUDE.md` | WARN if 없음 — "/init으로 생성 권장" |
+| `CLAUDE.md` | WARN if 없음 — "/setup:init으로 생성 권장" |
 
-**--fix 동작**: `.prettierrc`, `.prettierignore`, `.env.example`, `.gitignore` 누락 시 기본 템플릿으로 생성
+**수정 동작**: `.prettierrc`, `.prettierignore`, `.env.example`, `.gitignore` 누락 시 기본 템플릿으로 생성
 
 ---
 
@@ -176,20 +198,19 @@ pnpm build
 | TypeScript 에러 | FAIL — 에러 메시지 표시 |
 | 기타 에러 | FAIL — 에러 메시지 표시 |
 
-**--fix 동작**: 빌드 에러 분석 후 자동 수정 시도 (최대 3회). 수정 불가하면 에러 내용 출력.
+**수정 동작**: 빌드 에러 분석 후 자동 수정 시도 (최대 3회). 수정 불가하면 에러 내용 출력.
 
 ---
 
 ## Output 형식
 
-검사 완료 후 아래 형식으로 결과를 출력합니다:
+### Step 2: 검사 결과 (수정 여부 묻기 직전)
 
 ```
 🔍 Next.js 프로젝트 검사 결과
 
 프로젝트: [package.json name]
 Next.js: [버전]
-모드: [--fix | --report]
 
 ┌─────────────────────────────────┬────────┐
 │ 검사 항목                        │ 결과   │
@@ -212,25 +233,41 @@ PASS: 8  WARN: 2  FAIL: 0
   - 3. 스크립트: `format:check` 스크립트 없음
   - 9. 설정 파일: `.prettierignore` 없음
 
-[--fix 모드인 경우]
-✅ 자동 수정 완료:
-  - .prettierignore 생성
-  - format:check 스크립트 추가
-
-[FAIL이 있는 경우]
-❌ 수동 대응 필요:
-  - 5. src/app/not-found.tsx 없음 → `pnpm dlx shadcn@latest add` 또는 수동 생성
+[FAIL 상세]
+  - 5. 핵심 파일: src/app/not-found.tsx 없음
 ```
+
+이 결과를 출력한 직후 `AskUserQuestion` 으로 수정 여부를 묻는다 (실행 흐름 Step 3 참고).
+
+### Step 5: 최종 리포트 (수정 후)
+
+```
+✅ 수정 완료 (또는 "리포트 종료")
+
+수정된 항목 (3):
+  - 3. format:check 스크립트 추가
+  - 9. .prettierignore 생성
+  - 5. src/app/not-found.tsx 기본 템플릿 생성
+
+수정 건너뜀 (0):
+  (없음)
+
+수동 대응 필요 (0):
+  (없음)
+```
+
+수정을 건너뛴 항목이 있으면 그 사유(사용자가 No 선택, 자동 수정 불가 등)도 함께 표시.
 
 ---
 
 ## Rules
 
-- 검사만 하고 **검사 외 코드 수정은 하지 않음** (--fix에서도 설정 파일만 수정)
+- 검사만 하고 **검사 외 코드 수정은 하지 않음** (수정 동의 시에도 설정 파일만 수정)
 - 프로젝트의 비즈니스 코드는 절대 수정하지 않음
 - PASS 항목은 상세 출력하지 않음 (간결하게)
 - WARN/FAIL만 상세 사유 표시
-- --fix로 생성하는 파일은 `/create-nextjs`와 동일한 템플릿 사용
+- 수정 시 생성하는 파일은 `/setup:create-nextjs`와 동일한 템플릿 사용
 - 빌드 검증에서 수정하는 것은 설정/타입 에러만 — 로직 에러는 안내만
 - `package.json`이 없으면 즉시 중단
 - 검사 결과 테이블은 반드시 출력
+- **수정 전에는 반드시 AskUserQuestion 으로 사용자 동의를 받음** — 자동 수정 모드(플래그) 없음

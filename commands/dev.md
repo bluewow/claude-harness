@@ -51,11 +51,7 @@ Agent(
 1. 루트 CLAUDE.md를 읽고 프로젝트 기술 스택, 구조, 패턴 파악
 2. `{BRIEF_PATH}`를 읽고 기획 내용 파악
 3. CLAUDE.md의 Project Structure를 기반으로 프로젝트 루트 디렉토리 확인
-4. **디자인 레퍼런스 로드** — brief.md에 프론트엔드/UI 변경이 포함된 경우 반드시 수행:
-   - `.claude/skills/design-inspiration/references/DESIGN.md`를 Read (디자인 시스템 규칙)
-   - `.claude/skills/design-inspiration/images/` 폴더의 이미지 파일을 Glob으로 탐색 후 Read (레퍼런스 이미지)
-   - 이미지가 없으면 DESIGN.md만으로 진행
-   - 구현 시 DESIGN.md의 색상·타이포·엘리베이션·컴포넌트 규칙을 준수할 것
+4. brief.md 에 프론트엔드/UI 변경이 포함되면 **design-system** 스킬을 활성화해 토큰·규칙을 먼저 로드한 뒤 구현할 것
 5. 프로젝트 전체를 스캔하여 관련 영역 파악:
    - 프론트엔드: 컴포넌트, 화면, 라우팅, 상태 관리, 스타일 토큰
    - 백엔드: API, 모델, 서비스, 데이터베이스

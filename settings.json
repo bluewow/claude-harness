@@ -89,7 +89,6 @@
       "Edit(**/serviceAccount*.json)"
     ],
     "additionalDirectories": [
-      ".claude/skills/design-inspiration/images",
       ".claude/skills"
     ]
   },

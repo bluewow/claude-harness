@@ -259,7 +259,24 @@ CLAUDE.md 생성 후 즉시 수행합니다.
 1. `output/` 디렉토리가 없으면 생성
 2. `output/tasks/` 디렉토리가 없으면 생성
 3. `output/history.json`이 없으면 빈 배열 `[]`로 생성
-4. `.claude/templates/dashboard-template.html`을 Read → `output/dashboard.html`로 Write (복사)
+4. `output/meta.json`이 없으면 아래 스키마로 생성 (대시보드 개요 탭에서 사용):
+   ```json
+   {
+     "name": "[루트 프로젝트명 — CLAUDE.md 의 H1 또는 폴더명]",
+     "description": "[CLAUDE.md 의 Overview 한 줄 또는 빈 문자열]",
+     "createdAt": "[오늘 날짜 YYYY-MM-DD]",
+     "projects": [
+       {
+         "name": "[서브 폴더명 또는 루트면 .]",
+         "stack": ["[해당 프로젝트의 Tech Stack 핵심 3~5개]"]
+       }
+     ]
+   }
+   ```
+   - **단일 프로젝트**: `projects` 배열에 하나만 (예: `{ "name": "web", "stack": [...] }` 또는 루트 단독이면 `{ "name": ".", "stack": [...] }`)
+   - **멀티 프로젝트** (예: `web/` + `api/` + `admin/`): 감지된 모든 서브 프로젝트를 `projects` 배열에 차례로 추가
+   - 이미 존재하면 건드리지 않음 (사용자가 수동 편집했을 수 있음)
+5. `.claude/templates/dashboard-template.html`을 Read → `output/dashboard.html`로 Write (복사)
    - 이미 존재하면 AskUserQuestion으로 덮어쓸지 확인
 
 ## Output
@@ -274,6 +291,7 @@ CLAUDE.md 생성 후 즉시 수행합니다.
   - CLAUDE.md (루트)
   - output/dashboard.html (태스크 대시보드)
   - output/history.json (태스크 이력, 신규 시)
+  - output/meta.json (프로젝트 메타, 신규 시)
 
 이제 /pm, /dev, /do 명령을 사용할 수 있습니다.
 대시보드: output/dashboard.html을 브라우저에서 열어 확인하세요.
