@@ -4,7 +4,7 @@ description: 프로젝트 스캔 → CLAUDE.md 자동 생성/업데이트
 
 당신은 프로젝트 분석 전문가입니다. 기존 프로젝트를 스캔하고 CLAUDE.md를 생성합니다.
 
-**CLAUDE.md는 이 프로젝트의 모든 에이전트(/dev, /do, /pm 등)가 참조하는 유일한 프로젝트 문서입니다.**
+**CLAUDE.md는 이 프로젝트의 `/task` 가 참조하는 유일한 프로젝트 문서입니다.**
 **에이전트가 코드를 이해하고, 컨벤션을 지키고, 빌드/테스트를 실행하는 데 필요한 모든 정보를 담아야 합니다.**
 
 ---
@@ -246,38 +246,17 @@ CLAUDE.md는 **에이전트의 작업 매뉴얼**입니다. 다음 질문에 답
 - 코드 수정 금지 (CLAUDE.md 생성만)
 - 실제 코드에서 발견된 패턴만 기록
 - 코드 예시 블록 사용 금지 — 규칙/경로/패턴명으로 기술
-- **Style Guide의 Colors는 반드시 실제 HEX 값을 추출하여 기록** — /pm의 design 유형에서 사용
-- **Dev Commands는 반드시 실행 가능한 명령어를 기록** — /dev, /do의 에러 체크에서 사용
-- **Reusable Components는 경로와 용도를 기록** — /dev 구현 시 중복 생성 방지
+- **Style Guide의 Colors는 반드시 실제 색상 값(oklch/HEX 등)을 추출하여 기록** — `/task` plan 모드의 design 시안에서 사용
+- **Dev Commands는 반드시 실행 가능한 명령어를 기록** — `/task` do 모드의 빌드/에러 체크에서 사용
+- **Reusable Components는 경로와 용도를 기록** — `/task` 구현 시 중복 생성 방지
 - 기존 CLAUDE.md가 있으면 AskUserQuestion으로 덮어쓸지 확인
 - 완료 후 생성된 CLAUDE.md 내용을 요약 출력
 
-## Step 4: .output 디렉토리 초기화
+## Step 4: 마무리
 
-CLAUDE.md 생성 후 즉시 수행합니다.
-
-1. `.output/` 디렉토리가 없으면 생성
-2. `.output/tasks/` 디렉토리가 없으면 생성
-3. `.output/history.json`이 없으면 빈 배열 `[]`로 생성
-4. `.output/meta.json`이 없으면 아래 스키마로 생성 (대시보드 개요 탭에서 사용):
-   ```json
-   {
-     "name": "[루트 프로젝트명 — CLAUDE.md 의 H1 또는 폴더명]",
-     "description": "[CLAUDE.md 의 Overview 한 줄 또는 빈 문자열]",
-     "createdAt": "[오늘 날짜 YYYY-MM-DD]",
-     "projects": [
-       {
-         "name": "[서브 폴더명 또는 루트면 .]",
-         "stack": ["[해당 프로젝트의 Tech Stack 핵심 3~5개]"]
-       }
-     ]
-   }
-   ```
-   - **단일 프로젝트**: `projects` 배열에 하나만 (예: `{ "name": "web", "stack": [...] }` 또는 루트 단독이면 `{ "name": ".", "stack": [...] }`)
-   - **멀티 프로젝트** (예: `web/` + `api/` + `admin/`): 감지된 모든 서브 프로젝트를 `projects` 배열에 차례로 추가
-   - 이미 존재하면 건드리지 않음 (사용자가 수동 편집했을 수 있음)
-5. `.claude/templates/dashboard-template.html`을 Read → `.output/dashboard.html`로 Write (복사)
-   - 이미 존재하면 AskUserQuestion으로 덮어쓸지 확인
+`/task` 는 plan 모드 실행 시 `.output/plans/` 와 `index.html` 을 **필요할 때 스스로 생성**합니다.
+따라서 init 은 별도의 `.output/` 스캐폴드(meta/history/dashboard 등)를 만들지 않습니다 —
+CLAUDE.md 생성만으로 충분합니다.
 
 ## Output
 
@@ -289,10 +268,9 @@ CLAUDE.md 생성 후 즉시 수행합니다.
 분석한 파일: [N개]
 생성된 파일:
   - CLAUDE.md (루트)
-  - .output/dashboard.html (태스크 대시보드)
-  - .output/history.json (태스크 이력, 신규 시)
-  - .output/meta.json (프로젝트 메타, 신규 시)
 
-이제 /pm, /dev, /do 명령을 사용할 수 있습니다.
-대시보드: .output/dashboard.html을 브라우저에서 열어 확인하세요.
+이제 /task 명령으로 작업을 시작할 수 있습니다.
+  - /task <요청>              → plan/do 자동 분류
+  - /task <요청> --mode plan  → UI 시안(html) 먼저 생성
+  - /task <요청> --mode do    → 바로 구현
 ```
