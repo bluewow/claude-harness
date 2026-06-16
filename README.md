@@ -9,23 +9,33 @@
 > "기획서 따로, 코드 따로, 진행상황 공유 따로"
 > — 1인 개발자 · 소규모 팀의 **컨텍스트 스위칭 비용** 을 0에 가깝게.
 
-자연어 요청 한 줄에서 **기획 → 코드 → 검증 → 알림** 까지 한 호흡으로 처리합니다.
+자연어 요청 한 줄에서 **분류 → (시안) → 구현 → 검증 → 알림** 까지 한 호흡으로 처리합니다.
 
 ---
 
 ## ⚙️ 핵심 파이프라인
 
+`/task` 하나가 요청을 **plan(시안 먼저)** 과 **do(바로 구현)** 으로 자동 분류합니다.
+
 ```
-/pm "로그인 만들자"   →   brief.md   →   /dev   →   complete.md   →   📢 Slack
-   (기획 Q&A)         (명세 잠금)    (백그라운드 코딩)   (빌드 검증)
+/task "로그인 만들자"
+   └─ 분류 ─┬─ plan → 시안 html(.output/plans/) → ✅승인 ─┐
+            │                                              ├─ 구현 → 검증 → 📢 Slack
+            └─ do ─────────────────────────────────────────┘
 ```
 
-| 단계             | 커맨드                    | 산출물                      | 실행 방식           |
-| ---------------- | ------------------------- | --------------------------- | ------------------- |
-| 🧭 **기획**      | `/pm [요청]`              | `brief.md`, `*.html` 시안   | Foreground (대화형) |
-| 💻 **개발**      | `/dev [태스크ID]`         | 소스 코드 + `complete.md`   | Background          |
-| 🩹 **단축 수정** | `/do [작업]`              | `complete.md`               | Background          |
-| 🏗️ **초기 세팅** | `/setup:init`, `/setup:create-nextjs` | `CLAUDE.md`, 보일러플레이트 | Foreground          |
+| 모드            | 트리거                          | 산출물                          | 동작                                  |
+| --------------- | ------------------------------- | ------------------------------- | ------------------------------------- |
+| 🧭 **plan**     | 새 화면·리디자인·결정 옵션 다수 | `.output/plans/NNN-[slug].html` | idea/design 시안 생성 → 브라우저 오픈 → 승인 게이트 → 구현 |
+| ⚡ **do**       | 버그·텍스트·로직·작은 수정      | 코드 변경                       | 시안 없이 바로 구현                   |
+| 🔍 **에러 체크** | 두 모드 공통                    | 완료 보고(채팅)                 | `typecheck` · `lint` · `test` (`--build` 시 빌드 추가) |
+
+```
+/task <요청> [--mode plan|do] [--build]
+```
+
+- `--mode plan|do` — 자동 분류를 건너뛰고 모드 강제
+- `--build` — 에러 체크에 프로덕션 빌드 추가 (기본은 typecheck/lint/test 만)
 
 ---
 
@@ -33,33 +43,36 @@
 
 ```
 .claude/
-├── commands/     # 슬래시 커맨드 명세
-│   ├── pm.md     #   /pm — 기획 (foreground)
-│   ├── dev.md    #   /dev — 개발 (background, /pm 승인 시 자동 실행)
-│   ├── do.md     #   /do — 단순 수정 (background)
-│   └── setup/    #   /setup:init · create-nextjs · check-nextjs · onepager
-├── hooks/        # Stop · Notification 훅 (slack-notify.js)
-├── skills/       # 자동 활성화 스킬 (design-system 등)
-├── templates/    # idea / design / dashboard / onepager HTML 템플릿
-└── settings.json # 권한 · 훅 · 환경변수
+├── commands/
+│   ├── task.md            #   /task — plan/do 통합 워크플로우
+│   └── setup/             #   /setup:init · create-nextjs · check-nextjs · onepager
+├── hooks/
+│   └── slack-notify.js    # Stop · Notification · PreToolUse(AskUserQuestion) → Slack
+├── skills/
+│   └── design-system/     # 디자인 토큰 자동 활성화 스킬 (+ references/design.md)
+├── templates/             # idea · design · onepager HTML 템플릿
+├── settings.json          # 권한(allow/deny) · 훅 · env (팀 공유)
+└── settings.local.json    # SLACK_WEBHOOK_URL 등 로컬 비밀 (.gitignore)
 
 .output/
-├── meta.json     # 프로젝트 정보 (이름·스택·생성일) — 단일/멀티 프로젝트 모두 표현
-├── history.json  # 태스크 이력 (모든 명령의 단일 진실 소스)
-├── dashboard.html # 3-탭 대시보드 (개요·진행내역·산출물) — 새로고침으로 동기화
-└── tasks/        # 태스크별 산출물 격리 (idea.html · design.html · brief.md · complete.md)
+└── plans/
+    ├── index.html         # 시안 인덱스 — plan 실행마다 자동 갱신(최근이 위)
+    └── NNN-[slug].html    # plan 모드 UI 시안 (idea = 신규 / design = 개선)
 ```
+
+> `/setup:onepager` 는 `.output/onepager.html` 로 별도 출력합니다.
 
 ---
 
 ## ✨ 특징
 
-- 🧩 **컨텍스트 격리** — `/pm` 은 별도 Foreground 에이전트로 메인 세션을 더럽히지 않음
-- 🔔 **Slack 실시간 통지** — 작업 완료(Stop) · 질문 대기(AskUserQuestion) 자동 알림
-- 📐 **표준 산출물** — `brief.md`, `complete.md`, `history.json` 으로 모든 태스크 추적 가능
-- 📊 **3-탭 대시보드** — 개요(KPI·즉시처리)·진행내역(활동 스트림)·산출물(카드 갤러리) 통합 뷰
-- 🏗️ **단일/멀티 프로젝트** — `meta.json` 의 `projects[]` 배열로 web/api/admin 같은 멀티 구조 지원
-- 🛡️ **안전 권한 설정** — `.env`, `*.pem`, `rm -rf /` 등 위험 작업 기본 차단
+- 🎯 **단일 진입점** — `/task` 하나가 plan/do 를 자동 분류, 애매하면 1회만 질문
+- 🧭 **plan 모드 시안 게이트** — idea/design 자동 판정 → html 시안 → 브라우저 자동 오픈 → 승인/수정/폐기 후 구현
+- ⚡ **do 모드 직행** — 버그·텍스트·백엔드 로직은 시안 없이 바로 구현
+- 🔍 **자동 에러 체크** — 구현 후 `typecheck`·`lint`·`test` 자동 실행, `--build` 로 빌드까지
+- 🔔 **Slack 실시간 통지** — 작업 완료(Stop) · 일반 알림(Notification) · 질문 대기(AskUserQuestion) Block Kit 메시지
+- 🎨 **design-system 스킬** — 코드의 디자인 토큰(globals.css/tailwind.config/theme)을 단일 진실 소스로, UI 작업 시 자동 활성화
+- 🛡️ **안전 권한 설정** — 위험한 `git`(force/reset --hard) · `rm -rf` · `sudo` · `publish` · `.env`/`*.pem`/secret 쓰기 기본 차단
 
 ---
 

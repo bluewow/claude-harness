@@ -11,7 +11,9 @@
       "Bash(mkdir:*)",
       "Bash(rm:.output/**)",
       "Bash(Start-Process:*)",
-      "Bash(start:*)"
+      "Bash(start:*)",
+      "mcp__plugin_figma_figma__get_screenshot",
+      "mcp__plugin_figma_figma__whoami"
     ],
     "additionalDirectories": [
       "c:\\project_2026\\fit-day\\.claude\\templates",
