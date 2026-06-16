@@ -80,4 +80,4 @@
 
 [**기술 문서 및 아키텍처 사양서 →**](https://bluewow.github.io/claude-harness/)
 
-> 로컬에서 보려면 [index.html](./index.html) 을 브라우저로 직접 열어도 됩니다.
+워크플로우 흐름 · `/task` 커맨드 레퍼런스 · Setup 명령어 · 시안 인덱스 · 디렉토리 구조 · 설정 스키마 · Slack 훅 스펙을 인터랙티브 페이지로 정리한 문서입니다.
