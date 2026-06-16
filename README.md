@@ -78,4 +78,4 @@
 
 ## 📖 자세히 보기
 
-[**기술 문서 및 아키텍처 사양서 →**](https://bluewow.github.io/my-claude/)
+로컬 기술 문서: [**index.html**](./index.html) 를 브라우저로 열면 인터랙티브 아키텍처 사양서를 볼 수 있습니다.
