@@ -78,4 +78,6 @@
 
 ## 📖 자세히 보기
 
-로컬 기술 문서: [**index.html**](./index.html) 를 브라우저로 열면 인터랙티브 아키텍처 사양서를 볼 수 있습니다.
+[**기술 문서 및 아키텍처 사양서 →**](https://bluewow.github.io/claude-harness/)
+
+> 로컬에서 보려면 [index.html](./index.html) 을 브라우저로 직접 열어도 됩니다.
