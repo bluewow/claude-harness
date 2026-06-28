@@ -1,155 +1,112 @@
-# 디자인 규칙: Fit-day
+# 디자인 규칙: {프로젝트명}
 
-> **토큰 소스(값의 단일 진실):** `web/src/app/globals.css` — `:root` 변수 + `@theme inline` 매핑. (Tailwind v4, `tailwind.config` 없음 / shadcn `components.json` 기반)
-> **기준 화면(디자인 레퍼런스):** `web/src/features/landing/components/care-panel.tsx` — "담당 PM 케어" 패널. 이 화면의 톤·합성을 다른 화면의 기준으로 삼는다.
-> **마지막 업데이트:** 2026-05-28
-> **이 문서의 규칙:** 값(hex/oklch/px)을 적지 않는다. **토큰명·유틸 클래스명만** 참조한다. 실제 값이 필요하면 항상 `globals.css` 를 본다. 코드와 충돌하면 **코드가 승리**한다.
+> ⚠️ **이 파일은 템플릿이다.** 새 프로젝트에 적용할 때 `{...}` 자리표시자와 예시 규칙을 그 프로젝트의 **실제 토큰명·규칙**으로 교체한다. design-system 스킬(`SKILL.md`)의 워크플로우가 토큰 소스를 탐지해 이 문서를 채운다.
+>
+> **토큰 소스(값의 단일 진실):** {예: `src/app/globals.css`, `tailwind.config.ts`, `lib/theme/*.dart` …}
+> **기준 화면(디자인 레퍼런스):** {가장 완성도 높은 대표 화면 1~2개의 파일 경로 — 다른 화면의 톤·합성 기준으로 삼는다}
+> **마지막 업데이트:** {YYYY-MM-DD}
+> **이 문서의 규칙:** 값(hex/oklch/px)을 적지 않는다. **토큰명·유틸 클래스명만** 참조한다. 실제 값이 필요하면 항상 토큰 소스 파일을 본다. 코드와 충돌하면 **코드가 승리**한다.
 
 ---
 
 ## 0. 한 줄 방향성
 
-**화이트 캔버스 + Forest Green(`--primary`) 단색 브랜드.** 성장기 스타트업을 위한 B2B 채용 대행 — "AI 아님, 사람이 정성껏 검증한다"는 신뢰·차분함이 톤의 핵심. 화려함 대신 여백·정렬·단일 브랜드 컬러로 신뢰를 만든다. 시멘틱 컬러(red/emerald/amber/orange)는 **수치의 의미를 말할 때만** 쓰고 장식에는 절대 쓰지 않는다.
+{프로젝트의 톤·무드를 한 줄로 적는다. 예: "차분한 뉴트럴 배경 + 단일 브랜드 강조색 + 절제된 입체."} — 이 한 줄이 색·타이포·입체 사용의 기준점이 된다.
 
 ---
 
 ## 1. 색상 사용 규칙
 
-### 브랜드 / 액션
-- **`--primary`** (Forest Green, 로고 톤) — 브랜드 강조, CTA, 섹션 eyebrow 배지(`bg-primary/10` + `border-primary/20` + `text-primary`), 내비, 타임라인 기본 점·라벨. 한 화면에서 가장 강한 색이므로 남발 금지.
-- **`--accent`** (mid-sage) — hover/링크 등 인터랙션 강조. primary 보다 한 단계 밝은 보조 브랜드 톤.
-- **`.bg-gradient-brand` / `.text-gradient-brand`** (forest green → sage) — hero·카드 헤드라인의 **강조 라인 1줄**, 그리고 핵심 CTA 버튼·아바타에만. 본문 카드 배경에는 금지.
-- **`--primary-foreground`** — 그라데이션/primary 면 위의 텍스트·아이콘.
+> 토큰명만 참조한다. 값은 토큰 소스에 있다. (프로젝트에 토큰 레이어가 둘 이상이면 — 예: 디자인시스템 세트 vs UI 프리미티브 세트 — 어느 컴포넌트에 무엇을 쓰는지 여기서 분리해 적는다.)
 
-### 시멘틱 (수치·상태의 의미 전용 — `globals.css` 주석 규약과 동일)
-- **`fd-emerald-400` / `fd-green-400`** — 절감·이득·Fit-day 성과("+30일 안착", "연 +N일", 평균 응답시간 등 긍정 수치).
-- **`fd-red-400`** — 손실·문제·매몰 비용("잃고 있는 시간", 적자 막대 등 부정 수치).
-- **`fd-amber-400`** — 주의 / "높음" 직전 단계(게이지 중간 구간).
-- **`fd-orange-500`** — 긴급 / "매우 높음"(게이지 상위 구간).
-- **`fd-blue-400` / `fd-purple-400`** — info·차트 보조 계열(`--chart-3/4`). 주요 메시지에는 쓰지 않음.
-- **`--destructive`** — 폼 검증 에러·삭제 액션(시멘틱 red 와 역할 구분: destructive=조작, fd-red=수치).
+### 브랜드 / 액션
+- **`{주요 액션/브랜드 토큰}`** — 주요 CTA 면에만. 한 화면에서 가장 강한 색이므로 **핵심 액션 1~2개**에 집중한다(다 튀면 아무것도 안 튄다).
+- **`{브랜드 텍스트/아이콘 토큰}`** — 섹션 아이콘·핵심 수치·라벨 강조 등 텍스트/얇은 강조용. 큰 면적 배경으로는 쓰지 않는다.
+- **`{히어로/그라데이션 유틸}`** — 온보딩·랜딩 등 **히어로 CTA 한정**. 본문 카드 배경엔 금지.
+
+### 보조 / 뉴트럴
+- **`{보조 토큰}`** — 중립 칩·배지, 비활성 액션.
+- **`{카드 표면 토큰}`** — 카드 기본 배경(항상 이것). 그 위 단계 표면 토큰은 트랙·호버·구분 면 등 점층적 음영에.
+- **`{테두리 토큰}`** — 경계. 보통 옅게(투명도 적용), 강조 경계만 불투명.
+
+### 시멘틱 (상태·수치의 의미 전용)
+- **`{error / on-error}`** — 위험·임박 강조.
+- **`{warning / success 토큰}`** — 경고/정상 면·칩.
+- 시멘틱 색은 **의미를 말할 때만** 쓰고 장식(아이콘 색·구분선)에는 쓰지 않는다.
 
 ### 텍스트 위계
-- **`text-foreground`** — 헤드라인·본문 핵심.
-- **`text-foreground/80~85`** — 살짝 누른 라벨·질문 텍스트.
-- **`text-muted-foreground`** — 보조 설명·캡션·단위·힌트(작은 글씨 가독성용).
-
-### 틴트 카드 공식 (시멘틱 표면의 표준 합성)
-의미를 가진 카드/칩은 항상 **`border-{color}/25~30` + `bg-{color}/5~10` + `text-{color}`** 3종 세트로. (예: emerald 메트릭 타일 = `border-fd-emerald-400/25 bg-fd-emerald-400/[0.08] text-fd-emerald-400`, red 손실 카드 = `border-fd-red-400/25 bg-fd-red-400/5 text-fd-red-400`.) 채워진 솔리드 배경은 쓰지 않는다 — 라이트 캔버스 위 옅은 틴트가 기본.
+- **`{본문 핵심 토큰}`** — 헤드라인·본문 핵심.
+- **`{보조 텍스트 토큰}`** — 보조 설명·캡션·단위·메타.
 
 ### Don't
-- ❌ 시멘틱 컬러를 장식으로 사용(예: Q 번호·아이콘 색에 fd-red). 의미 없는 자리엔 `--primary` 또는 뉴트럴.
-- ❌ `--primary` 외 추가 브랜드 색 도입. 브랜드는 의도적으로 단색.
-- ❌ 인라인 hex/oklch. 반드시 토큰·유틸 클래스 경유(그라데이션 헬퍼는 예외적으로 globals.css 안에서만 hex 보유).
+- ❌ 인라인 hex/oklch — 반드시 토큰·유틸 클래스 경유.
+- ❌ 시멘틱 색을 의미 없는 장식에 사용 — 그 자리엔 브랜드 또는 뉴트럴.
+- ❌ 카드 배경에 그라데이션/솔리드 강조색 채움 — 카드는 표면 토큰 + 옅은 테두리 + 그림자가 기본.
+- ❌ 서로 다른 토큰 레이어를 한 컴포넌트에서 혼용.
 
 ---
 
 ## 2. 타이포 사용 규칙
 
-- **패밀리:** `font-sans`(Pretendard Variable, 45–920) 단일. 별도 디스플레이 폰트 없음.
-- **Eyebrow(섹션 라벨):** `text-xs font-bold uppercase tracking-widest text-primary` — 모든 섹션 도입부 공통. 영문 라벨(예: `Cost Simulator`, `Your Dedicated Care`).
-- **Hero h1:** `text-3xl md:text-5xl font-black leading-tight tracking-tight`, 강조 라인은 `.text-gradient-brand`.
-- **섹션 h2:** `text-2xl md:text-3xl font-bold tracking-tight text-foreground`.
-- **카드 h3:** `text-lg md:text-xl font-bold leading-snug`, 강조 라인 `.text-gradient-brand`.
-- **본문:** `text-sm md:text-base text-muted-foreground`. hero 리드는 `font-light leading-relaxed` 로 한 단계 가볍게.
-- **메트릭 수치:** `font-black` 또는 `font-extrabold` + **`tabular-nums`** + 큰 스텝(`text-5xl md:text-6xl` 핵심 / `text-base md:text-lg` 보조). 숫자에는 항상 `tabular-nums`.
-- **마이크로 라벨:** `text-[10px]~[11px] font-bold uppercase tracking-wider` (타임라인 라벨·결과 라벨·배지).
+- **폰트 패밀리:** `{제목용 폰트}` = 제목·숫자·날짜, `{본문용 폰트}` = 본문·라벨·UI 텍스트.
+- **타이포 토큰(크기는 토큰으로):** `{text-display-* / text-headline-* / text-body-* / text-label-* …}` — 임의 `text-[Npx]` 대신 이 토큰을 쓴다(불가피할 때만 arbitrary).
+- **섹션 제목 / 화면 제목 / 그룹 라벨:** {각각의 표준 조합을 적는다. 예: "섹션 제목 = `{헤드라인 토큰}` + 앞에 아이콘".}
+- **수치·금액:** {강조 규칙을 적는다. 예: 제목용 폰트 + 강조 색.}
 
 ### Don't
-- ❌ 본문에 `font-black`. 무게는 헤드라인·수치에만.
-- ❌ 한글 텍스트 uppercase(영문 eyebrow/라벨 한정).
+- ❌ 본문에 제목용 폰트 남용 — 제목·숫자에 한정.
+- ❌ 해당 언어/스크립트에 부적절한 uppercase(영문 라벨/eyebrow 한정).
 
 ---
 
-## 3. 간격 / 레이아웃 규칙
+## 3. 간격 · 레이아웃 규칙
 
-- **컨테이너:** 랜딩 전체 `container mx-auto max-w-6xl`. 섹션별로 좁힘 — 계산기 `max-w-5xl`, FAQ `max-w-3xl`, 본문 리드 `max-w-2xl`.
-- **섹션 간:** `mb-20`(섹션 블록 사이) / hero 는 `my-10 md:my-16`.
-- **도입부 리듬:** eyebrow → 헤드라인 `mb-3` → 본문 `mb-3~8`. 이 3단 리듬을 섹션마다 반복.
-- **카드 내부 패딩:** 쇼케이스/큰 카드 `p-6 md:p-8`, 결과·중간 카드 `p-5~6`, 중첩 타일 `p-2.5~4`.
-- **스택 간격:** 타임라인 `space-y-2.5`, FAQ `space-y-4`, 폼/슬라이더 그룹 `space-y-6`.
-- **그리드:** 2단 비교/입력은 `md:grid-cols-2`, 메트릭 3-up 은 `grid-cols-3 gap-2`. 모바일은 단일 컬럼.
+- **섹션 간:** `{예: space-y-6 ~ mb-8/12}`
+- **카드 내부 패딩:** `{예: p-4 조밀 · p-5 표준 · p-6 큰 카드}`
+- **모서리:** {카드/칩/버튼 각각의 radius 토큰을 적는다. radius 토큰을 따른다.}
+- **컨테이너:** {메인 셸 폭·정렬 규칙. 가로로 흐르는 묶음은 가로 스크롤 대신 반응형 그리드 권장 등.}
 
 ---
 
-## 4. 표면 / 깊이 규칙
+## 4. 컴포넌트 · 유틸 사용 규칙
 
-라이트 캔버스(`--background` 화이트) 위에서 **표면은 보더로 구분**하고 그림자는 최소화한다.
+- **카드 기본 공식:** `{표면 토큰 + radius + 그림자 유틸 + 옅은 테두리}`. 주목/이슈 카드만 강조 테두리로 승격.
+- **입체(elevation) 위계 — "입체 = 화면당 핵심 액션 1개":**
+  - **카드/면:** 은은한 그림자(평평). hover 시 살짝 상승.
+  - **입력창:** 플랫(그림자 없음) — 눌리는 것처럼 보이면 안 된다.
+  - **핵심 액션(Primary, 화면당 1개):** 채움색 + 떠 있는 그림자(누르면 내려앉음).
+  - **보조 액션:** 플랫 면(그림자 없음) — 핵심 옆에서 같이 튀지 않게.
+  - **이동(Tertiary):** 무배경 텍스트/링크.
+- **버튼 색:** 주 CTA `{주요 액션 토큰}`, 보조/비활성 `{뉴트럴 토큰}`, 위험 `{error 계열 토큰}`.
+- **배지/칩 · 진행바:** {긍정/경고/위험 각 상태의 토큰 대응을 적는다.}
+- **모션 유틸:** `{예: 바텀시트 등장·브랜드 모션 유틸}` — 용도 한정.
+- **UI 라이브러리 합성 규칙:** {프로젝트의 컴포넌트 합성 관례. 예: shadcn base-nova 는 `asChild` 가 아닌 `render` prop.}
 
-- **`.glass-panel`** — 반투명 흰색 + `backdrop-blur` + 옅은 보더. 가장 돋보여야 할 **쇼케이스 카드**(예: care-panel)에만.
-- **`bg-surface-deep`** — 카드 안의 1차 중첩 영역(인물 카드, 결과 카드 배경).
-- **`bg-surface-raised`** — 2차 중첩(결과 카드 안의 분해 박스, FAQ 본문 표면).
-- **`bg-surface-overlay`** — 인터랙티브 트랙(슬라이더 트랙, 진행 막대 배경).
-- **`border-border`** — 모든 표면 구분의 기본 1px 보더. 시멘틱 카드는 §1 틴트 공식의 컬러 보더로 대체.
-- **그림자:** 평면 우선. `shadow-lg` 는 **핵심 CTA 버튼**처럼 떠 있어야 하는 요소에만.
+### Do / Don't
+- ✅ 새 컴포넌트는 기존 토큰·유틸 클래스만 사용.
+- ✅ 새 토큰/유틸이 필요하면 **사용자 승인 후** 토큰 소스 파일에 추가.
+- ❌ 인라인 hex/그림자 직접 작성 — 유틸 클래스 경유.
+- ❌ 보조 버튼·입력창에 입체 적용 — 플랫로.
+- ❌ 한 화면에 입체 강조 버튼 2개 이상 — 핵심 1개만 입체.
+- ❌ design.md 에 토큰 값(hex/oklch/px) 적기 — 토큰명만.
 
 ---
 
-## 5. 모양 규칙
+## 5. 컨테이너 강조 위계 (선택 — 정보 밀도 높은 화면에서)
 
-`--radius` 기준 스케일(`globals.css`). 용도별 고정:
-- **`rounded-2xl`** — 패널·쇼케이스 카드·섹션 카드(가장 큰 표면).
-- **`rounded-xl`** — 카드 안 중첩 박스, 인물 카드, **CTA 버튼**.
-- **`rounded-lg`** — 작은 타일·메트릭 칸·타임라인 하이라이트 행·슬라이더 트랙.
-- **`rounded-md`** — 인라인 미니 배지("+30일 안착 보장" 류).
-- **`rounded-full`** — eyebrow 배지·상태 칩·타임라인 점·아바타.
+> **하나의 축(행동 필요성)만 인코딩한다. 색 = 신호의 종류, 두께·배경 = 강도.** 의미가 모호한 검정 두꺼운 테두리는 카드 강조에 쓰지 않는다.
+
+- **① 액션 필요** — 지금 손대야 할 것: `border-2` + 시멘틱 색({위험=error}, {추천 액션=브랜드 강조색}).
+- **② 정상·정보** — 기본값(대부분의 카드): 표면 토큰 + 옅은 테두리 + 은은한 그림자.
+- **③ 보조·비활성** — 예정/완료/빈 상태: `border-dashed` + 톤 다운.
 
 ### Don't
-- ❌ 같은 위계의 요소에 들쭉날쭉한 radius 혼용. 위 매핑을 일관 적용.
+- ❌ 검정 두꺼운 테두리로 카드 주목 유도 — 시멘틱(문제) 또는 브랜드(추천)로.
 
 ---
 
-## 6. 컴포넌트 합성 패턴
+## 6. 비고
 
-> 모두 기준 화면(care-panel) 및 기존 랜딩 컴포넌트에서 검증된 합성. 새 화면은 이 패턴을 재사용한다.
-
-- **섹션 eyebrow 배지** — `inline-block rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary`. 모든 섹션 도입부 첫 요소.
-- **인라인 보장 배지** — `rounded-md border border-fd-emerald-400/30 bg-fd-emerald-400/10 text-[10px] font-bold text-fd-emerald-400`. 헤드라인 옆 약속·보장 태그.
-- **쇼케이스 카드** — `.glass-panel rounded-2xl p-6 md:p-8`, 내부에 eyebrow→그라데이션 헤드라인→인물/요약 카드(`bg-surface-deep`)→타임라인→메트릭 타일→CTA 순.
-- **인물(담당자) 카드** — `rounded-xl border border-border bg-surface-deep p-3` + `.bg-gradient-brand` 원형 아바타(`text-primary-foreground`) + 이름/역할/응답지표(긍정 수치는 `text-fd-emerald-400`).
-- **타임라인 행** — 라벨(`w-12 text-[11px] font-bold`) + 점(`bg-primary`) + 제목/설명. **하이라이트 행**은 emerald 틴트(`border-fd-emerald-400/25 bg-fd-emerald-400/[0.06]`)로 강조 + 라벨/점/제목 emerald 전환 + `★`.
-- **메트릭 타일 (3-up)** — `grid-cols-3 gap-2`, 각 칸 emerald 틴트 + `font-black` 수치 + 마이크로 라벨.
-- **시멘틱 비교 카드(손실 vs 이득)** — red 틴트 카드 ↔ 화살표 ↔ emerald 틴트 카드. 큰 수치 `text-5xl md:text-6xl tabular-nums`.
-- **CTA 버튼** — `.bg-gradient-brand rounded-xl py-2.5 text-center font-black text-primary-foreground shadow-lg transition hover:scale-[1.02]`. 보조 안내문은 아래 `text-[11px] text-muted-foreground`.
-- **FAQ 아코디언** — `rounded-2xl border border-border bg-surface-raised`, 질문 Q번호 `text-primary`, 열림 본문 `border-t border-border/60 bg-surface-deep/40`.
-- **슬라이더/막대** — 트랙 `bg-surface-overlay`, 핸들 `accent-primary`, 채움 막대 `bg-primary`(또는 손실은 `bg-fd-red-400`).
-- **상태 게이지 칩** — 점수 구간별 §1 시멘틱(낮음 emerald → 보통 amber → 높음 orange → 매우 높음 red)을 틴트 공식으로.
-
-### shadcn / 프레임워크 합성 주의
-- 버튼+링크 조합은 `asChild` 가 아니라 **`render` prop**: `<Button render={<Link href="/" />}>…</Button>`.
-- 신규 shadcn 컴포넌트는 `pnpm dlx shadcn@latest add <name>` → `src/components/ui/`.
-
----
-
-## 7. Do / Don't
-
-### Do
-- ✅ 새 컴포넌트는 기존 토큰·유틸 클래스만 사용. 색은 §1 시멘틱 규약을 따른다.
-- ✅ 섹션은 항상 eyebrow→헤드라인→본문 3단 리듬으로 연다.
-- ✅ 수치는 `tabular-nums`, 의미 있는 수치는 시멘틱 컬러 + 틴트 카드.
-- ✅ 새 토큰이 꼭 필요하면 **사용자 승인 후 `globals.css` 에 추가**하고, 이 문서엔 규칙만 적는다.
-
-### Don't
-- ❌ 다크 모드 전제 코드(현재 `:root`/`.dark` 동일 복제 = 라이트 강제). 다크 토큰 신설은 별도 결정 사항.
-- ❌ 시멘틱 컬러 장식 사용 / `--primary` 외 브랜드 색 추가 / 솔리드 시멘틱 배경.
-- ❌ 마케팅 카드에 무거운 그림자. 평면 + 보더가 기본.
-- ❌ 이 문서에 hex/oklch/px 기재(토큰명만). 코드와 충돌 시 코드 우선.
-
----
-
-## 8. 반응형 규칙
-
-- 단일 분기 축은 Tailwind `md`(768px). 그 아래는 단일 컬럼 스택.
-- 2단 비교/입력 그리드(`md:grid-cols-2`), 메트릭 3-up 은 모바일에서도 3-up 유지(작은 타일).
-- 헤드라인·수치는 모바일 한 단계 축소(`text-3xl → md:text-5xl`, `text-5xl → md:text-6xl`).
-- 카드 패딩 모바일 축소(`p-6 → md:p-8`, `p-4 → md:p-5`).
-
----
-
-## 9. 코드 동기화 메모 (충돌 알림)
-
-스킬 원칙상 **코드(`globals.css`)가 값의 단일 진실**이다. 현재 다음 문서가 옛 디자인 기준으로 **stale** 하므로 값 참고 금지:
-- 루트 `CLAUDE.md` 스타일 표 — 다크 차콜네이비 배경 + amber/orange primary 로 기재(옛 다크 시안). **현재 코드는 라이트 + Forest Green.**
-- `web/CLAUDE.md` "Design Tokens" 표 — `--primary: oklch(0.205 0 0)`(near-black) 등 shadcn 기본값 잔재. **현재 primary 는 forest green(`oklch(0.42 0.07 150)`).**
-
-이 표들은 이 design.md 가 아니라 해당 CLAUDE.md 측에서 코드 값에 맞춰 갱신 대상.
+- **다크 모드:** {다크 토큰의 범위·정의 위치. 일부 토큰 레이어만 다크가 정의돼 있다면 그 한계를 적는다.}
+- **토큰 레이어 분리:** {프로젝트에 토큰 세트가 둘 이상이면 각 세트의 적용 범위를 적는다.}
+- **프로젝트별 특이사항:** {여기에 추가.}
