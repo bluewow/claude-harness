@@ -45,6 +45,7 @@
 .claude/
 ├── commands/
 │   ├── task.md            #   /task — plan/do 통합 워크플로우
+│   ├── handoff.md         #   /handoff [resume] — 세션 핸드오프(현재 상태·다음 할 일)
 │   └── setup/             #   /setup:init · create-nextjs · check-nextjs · onepager
 ├── hooks/
 │   └── slack-notify.js    # Stop · Notification · PreToolUse(AskUserQuestion) → Slack
@@ -55,12 +56,14 @@
 └── settings.local.json    # SLACK_WEBHOOK_URL 등 로컬 비밀 (.gitignore)
 
 .output/
+├── handoff.md            # /handoff — 세션 핸드오프(롤링, 최신 1장). resume 으로 이어가기
 └── plans/
     ├── index.html         # 시안 인덱스 — plan 실행마다 자동 갱신(최근이 위)
     └── NNN-[slug].html    # plan 모드 UI 시안 (idea = 신규 / design = 개선)
 ```
 
 > `/setup:onepager` 는 `.output/onepager.html` 로 별도 출력합니다.
+> `/handoff` 는 '현재 작업 위치'(이번 세션·다음 할 일)만 담습니다 — 오래 가는 사실은 memory(MEMORY.md). 새 세션은 `/handoff resume` 로 이어갑니다.
 
 ---
 
