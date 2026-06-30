@@ -1,11 +1,21 @@
 ---
 name: design-system
-description: 새 컴포넌트·화면·페이지를 생성하거나, 스타일·테마·디자인 토큰을 수정할 때 활성화. 프로젝트의 기존 디자인 토큰(globals.css, tailwind.config, theme 등)을 플랫폼별로 탐지해 단일 진실 소스로 사용하고, references/design.md 는 값이 아닌 사용 규칙·의도만 보충합니다. 단순 텍스트 수정·로직 버그·백엔드 작업에는 활성화하지 않습니다.
+description: 새 컴포넌트·화면·페이지를 생성하거나, 스타일·테마·디자인 토큰을 수정할 때 활성화. 프로젝트의 기존 디자인 토큰(globals.css, tailwind.config, theme 등)을 플랫폼별로 탐지해 단일 진실 소스로 사용하고, 프로젝트 design.md(권장: docs/design.md)는 값이 아닌 사용 규칙·의도만 보충합니다(작성 포맷은 references/design.md 템플릿). 단순 텍스트 수정·로직 버그·백엔드 작업에는 활성화하지 않습니다.
 ---
 
 # Design System
 
 **원칙: 코드의 디자인 토큰이 값의 단일 진실 소스, design.md 는 값을 적지 않고 사용 규칙만 보충.**
+
+## 3 레이어 (역할 분리)
+
+| 레이어 | 역할 | 위치 |
+|---|---|---|
+| **스킬(방법)** | 토큰 탐지·분기·갱신 절차 | 이 `SKILL.md` |
+| **참조(템플릿/참조형)** | design.md 작성 포맷·예시 (프로젝트 내용 없음, portable) | `references/design.md` |
+| **프로젝트(내용)** | 실제 색/타이포/간격/컴포넌트 규칙 | **프로젝트 `design.md`** (권장 `docs/design.md`) |
+
+> 프로젝트 규칙은 `references/design.md` 가 아니라 **프로젝트 design.md** 에 둔다. 참조 파일은 portable 한 템플릿으로 유지한다.
 
 ## 3대 원칙
 
@@ -94,18 +104,27 @@ description: 새 컴포넌트·화면·페이지를 생성하거나, 스타일·
 - 미발견: theme 객체, tokens 파일
 ```
 
-### Step 3: design.md 로드
+### Step 3: 프로젝트 design.md 로드
 
-`.claude/skills/design-system/references/design.md` 가 존재하면 `Read`. 없으면 빈 상태로 진행.
+프로젝트의 design.md(실제 규칙)를 다음 **우선순위**로 탐색해 `Read`. `references/design.md` 는 프로젝트 규칙이 아니라 **작성 템플릿**이므로 규칙 소스로 로드하지 않는다.
+
+1. `CLAUDE.md` 에 design.md 경로 명시가 있으면 그 값
+2. `docs/design.md` ← **권장 위치(기본)**
+3. 루트 `design.md`, `web/design.md`, `app/design.md`
+4. (레거시) `references/design.md` 안에 특정 프로젝트 내용이 박혀 있으면 → `docs/design.md` 로 이전하고 참조 파일은 템플릿으로 되돌리라고 사용자에게 제안
+
+발견되면 그 파일을 규칙 소스로 쓴다. 없으면 빈 상태로 진행(Step 4 에서 생성 제안).
 
 ### Step 4: 분기 처리
 
-| 토큰 소스 | design.md | 동작 |
+아래 "design.md" = **프로젝트 design.md**(기본 위치 `docs/design.md`). 생성 시 `references/design.md` 템플릿 포맷을 따른다.
+
+| 토큰 소스 | 프로젝트 design.md | 동작 |
 |---|---|---|
 | ✅ 있음 | ✅ 있음 | **표준**: 코드 토큰을 값 소스, design.md 를 규칙 소스로 결합 |
-| ✅ 있음 | ❌ 없음 | **규칙 슬롯 생성 제안**: "토큰은 발견했습니다. 사용 규칙(do/don't)을 design.md 로 정리할까요?" 동의 시 [규칙 전용 포맷]으로 생성 |
+| ✅ 있음 | ❌ 없음 | **규칙 슬롯 생성 제안**: "토큰은 발견했습니다. 사용 규칙(do/don't)을 design.md 로 정리할까요?" 동의 시 references 의 [포맷 A]로 `docs/design.md` 생성 |
 | ❌ 없음 | ✅ 있음 | design.md 의 값+규칙을 사용. 코드 작성 시 발견 값을 토큰 파일(globals.css 등)로 승격할지 사용자에게 제안 |
-| ❌ 없음 | ❌ 없음 | **빈 프로젝트**: 사용자에게 방향 질문 (업종, 톤, 참고) → [전체 포맷]으로 design.md 작성 → 첫 컴포넌트 작성 시 globals.css 등으로 승격 |
+| ❌ 없음 | ❌ 없음 | **빈 프로젝트**: 사용자에게 방향 질문(업종·톤·참고) → references 의 [포맷 B]로 `docs/design.md` 작성 → 첫 컴포넌트 작성 시 globals.css 등으로 승격 |
 
 ### Step 5: 적용 및 설명
 
@@ -116,79 +135,12 @@ description: 새 컴포넌트·화면·페이지를 생성하거나, 스타일·
 
 ## design.md 표준 포맷
 
-### 규칙 전용 포맷 (토큰 소스가 있을 때 — 권장)
+포맷·예시·작성 규칙은 **`references/design.md`(템플릿·참조형)** 에 있다. 프로젝트 design.md 는 그 템플릿을 따라 `docs/design.md` 에 작성한다.
 
-값을 적지 않고 토큰명만 참조합니다.
+- **포맷 A — 규칙 전용** (토큰 소스가 있을 때 · 권장): 값 없이 토큰명만.
+- **포맷 B — 전체** (토큰 소스가 없을 때만): 값+규칙, 이후 코드 토큰으로 승격.
 
-```markdown
-# 디자인 규칙: {프로젝트명}
-
-> 토큰 소스: {예: src/app/globals.css, tailwind.config.ts}
-> 마지막 업데이트: {YYYY-MM-DD}
-
-## 색상 사용 규칙
-- `--color-primary` — 주요 CTA에만, 페이지당 1~2회
-- `--color-secondary` — 보조 액션, 카드 내 강조
-- `--color-error` — 에러 메시지·필수 검증 표시
-- 그라데이션 — hero·랜딩 CTA 한정, 본문 카드 금지
-
-## 타이포 사용 규칙
-- `font-display` — hero·랜딩 헤드라인만, 본문 금지
-- 라벨 — 항상 uppercase + `tracking-wide`
-- 본문은 `text-base` 이하 사용 금지 (가독성)
-
-## 간격 사용 규칙
-- 섹션 간 — `space-y-16` 이상
-- 카드 내부 — `p-6` (모바일), `p-8` (데스크탑)
-
-## 컴포넌트 사용 규칙
-- 카드 배경 — 항상 `bg-surface-container-lowest`
-- Primary 버튼 — 한 화면 최대 1개
-- 폼 인풋 — `Input` 컴포넌트만, 직접 `<input>` 금지
-
-## Do / Don't
-- ✅ 새 컴포넌트는 기존 토큰만 사용
-- ✅ 새 토큰 추가 필요 시 사용자 승인 후 코드 토큰 파일에 추가
-- ❌ 인라인 hex 값 금지 — 반드시 토큰 경유
-- ❌ design.md 에 토큰 값(hex/px) 적지 말 것 — 토큰명만
-```
-
-### 전체 포맷 (토큰 소스가 없을 때만)
-
-```markdown
-# 디자인 시스템: {프로젝트명}
-
-> 토큰 소스: 없음 (이 문서가 값+규칙 모두 정의 — 첫 코드 작성 시 globals.css 등으로 승격 예정)
-> 마지막 업데이트: {YYYY-MM-DD}
-
-## 방향성
-{한 줄 크리에이티브 요약}
-
-## 색상
-| 토큰 | 값 | 용도 |
-|---|---|---|
-| primary | #5300b7 | 주요 CTA |
-| secondary | #6d28d9 | 보조 |
-| bg | #f7f9fb | 페이지 배경 |
-| surface | #ffffff | 카드 |
-
-## 타이포
-| 용도 | 폰트 | 크기 | 굵기 |
-|---|---|---|---|
-| Display | Manrope | 3.5rem | 800 |
-| Body | Pretendard | 1rem | 400 |
-
-## 간격
-| 토큰 | 값 |
-|---|---|
-| xs | 0.25rem |
-| sm | 0.5rem |
-| md | 1rem |
-| lg | 2rem |
-
-## 사용 규칙
-(규칙 전용 포맷과 동일)
-```
+> `references/design.md` 에는 특정 프로젝트 내용을 쓰지 않는다(portable 템플릿 유지). 프로젝트 규칙은 항상 프로젝트 design.md 로.
 
 ---
 
