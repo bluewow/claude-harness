@@ -46,6 +46,7 @@
 ├── commands/
 │   ├── task.md            #   /task — plan/do 통합 워크플로우
 │   ├── handoff.md         #   /handoff [resume] — 세션 핸드오프(현재 상태·다음 할 일)
+│   ├── todo.md            #   /todo <할 일> — 던진 TODO 시드로 파생·개선 검토→질문→다듬기(비즈니스 로직만·완료 수동)
 │   └── setup/             #   /setup:init · create-nextjs · check-nextjs · onepager
 ├── hooks/
 │   └── slack-notify.js    # Stop · Notification · PreToolUse(AskUserQuestion) → Slack
