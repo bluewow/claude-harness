@@ -1,0 +1,422 @@
+<!doctype html>
+<!--
+  ════════════════════════════════════════════════════════════════════
+  explainer-template.html — 로직 설명(docs/flows/*.html) 산출물 템플릿
+  ════════════════════════════════════════════════════════════════════
+
+  목적: md 정책 문서(SoT)를 근거로, "읽는 문서"가 아니라 "보는 문서"를 만든다.
+  산출 위치: docs/flows/<주제>.html (자립형 1파일, 이 템플릿의 CSS/JS 를 그대로 내장)
+
+  [작성 규칙 — 가독성·전달력]
+  1. 결론 먼저: 최상단 TL;DR = 한 문장 + 핵심 도식 1개 + 결론(take) 3개.
+     독자가 여기서 멈춰도 핵심은 전달돼야 한다.
+  2. 챕터는 5±2개. 챕터마다 주인공 도식/장치 1개. 본문 프로즈는 캡션(.cap) 1~2문장까지.
+  3. md 의 나머지 설명·표·결정기록·로드맵은 삭제하지 말고 "강등"한다:
+     챕터 보조 설명 → details.deep (기본 접힘) / 참고자료 → 부록(#appendix) deep 블록.
+  4. 동작(플로우·엔진·상태 변화)은 가능하면 인터랙티브 데모(.demo)로 직접 만지게 한다.
+     vanilla JS 만, 외부 라이브러리 금지. 단순화한 판정임을 각주로 밝힌다.
+  5. <b> 강조는 문장당 1회 이하. 이모지는 챕터 아이콘·상태 표시에만.
+  6. 법적 고지(.callout.legal)와 SoT 각주(.foot)는 항상 노출한다 — 접지 않는다.
+  7. 네비 라벨은 2~5자로 짧게. 챕터 id 는 c1, c2 … 순번.
+
+  {{PLACEHOLDER}} 를 채우고, 하단 "블록 라이브러리" 주석의 마크업을 조합해 챕터를 만든다.
+-->
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{DOC_TITLE}} — 노무히어로 로직 설명</title>
+    <style>
+      @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css");
+      :root {
+        --bg: #f5f3ec; --surface: #ffffff; --surface-2: #faf9f4;
+        --ink: #20242e; --ink-soft: #4b515e; --muted: #7a8090;
+        --line: #e7e3d7; --line-soft: #efece2;
+        --primary: #4338ca; --primary-soft: #ececfb;
+        --accent: #0d9488; --accent-soft: #e0f2f0;
+        --c-gray: #94a3b8; --c-blue: #2563eb; --c-green: #16a34a;
+        --c-amber: #d97706; --c-red: #dc2626; --c-violet: #7c3aed;
+        --shadow: 0 1px 2px rgba(20,24,36,.04), 0 6px 22px rgba(20,24,36,.07);
+        --shadow-sm: 0 1px 2px rgba(20,24,36,.05);
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0; background: var(--bg); color: var(--ink);
+        font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+          "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+        line-height: 1.65; -webkit-font-smoothing: antialiased; letter-spacing: -0.01em;
+      }
+      .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px 90px; }
+      [id] { scroll-margin-top: 64px; }
+
+      /* ── 스티키 챕터 네비 ── */
+      .nav { position: sticky; top: 0; z-index: 50; background: rgba(245,243,236,.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+      .nav .in { max-width: 960px; margin: 0 auto; padding: 10px 20px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+      .nav .in::-webkit-scrollbar { display: none; }
+      .nav a { flex: none; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); text-decoration: none; padding: 5px 11px; border-radius: 999px; border: 1px solid transparent; }
+      .nav a.home { color: var(--muted); }
+      .nav a:hover { background: var(--surface); border-color: var(--line); }
+      .nav a.on { background: var(--ink); color: #fff; }
+      .nav .sep { flex: none; color: var(--line); align-self: center; }
+
+      /* ── 헤더 ── */
+      .hero { padding: 34px 0 4px; }
+      .kicker { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); background: var(--primary-soft); padding: 5px 11px; border-radius: 999px; }
+      .hero h1 { margin: 12px 0 8px; font-size: 31px; font-weight: 800; letter-spacing: -.03em; line-height: 1.25; }
+      .hero p { margin: 0; color: var(--ink-soft); font-size: 15px; max-width: 62ch; }
+
+      /* ── TL;DR (30초 요약) ── */
+      .tldr { margin: 22px 0 8px; background: var(--surface); border: 1px solid var(--line); border-top: 5px solid var(--primary); border-radius: 18px; box-shadow: var(--shadow); padding: 20px 24px 22px; }
+      .tldr .tag { font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--primary); }
+      .tldr .one { font-size: 17px; font-weight: 700; line-height: 1.55; margin: 8px 0 14px; }
+      .tldr .one b { color: var(--primary); }
+      .takes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+      .take { background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 12px; padding: 12px 14px; font-size: 13px; color: var(--ink-soft); }
+      .take b { display: flex; align-items: center; gap: 7px; font-size: 13.5px; color: var(--ink); margin-bottom: 4px; }
+      .take .n { flex: none; display: inline-flex; width: 20px; height: 20px; border-radius: 6px; background: var(--primary); color: #fff; font-size: 11.5px; font-weight: 800; align-items: center; justify-content: center; }
+
+      /* ── 챕터 ── */
+      .chapter { margin: 46px 0 0; }
+      .chapter > h2 { font-size: 20px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
+      .badge-num { flex: none; width: 26px; height: 26px; border-radius: 8px; background: var(--ink); color: #fff; font-size: 13.5px; display: inline-flex; align-items: center; justify-content: center; }
+      .badge-num.apx { background: var(--muted); }
+      .cap { color: var(--ink-soft); margin: 4px 0 16px; font-size: 14.5px; max-width: 70ch; }
+      .note { font-size: 12.5px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+
+      /* ── 파이프라인(직선 흐름) ── */
+      .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0; }
+      .state { display: inline-flex; flex-direction: column; gap: 2px; border: 1.5px solid var(--sc, var(--c-gray)); border-radius: 12px; padding: 9px 13px; background: #fff; min-width: 92px; }
+      .state b { font-size: 13.5px; color: var(--sc, var(--ink)); }
+      .state span { font-size: 11.5px; color: var(--muted); }
+      .state.g { --sc: var(--c-gray); } .state.b { --sc: var(--c-blue); } .state.v { --sc: var(--c-violet); }
+      .state.a { --sc: var(--c-amber); } .state.gr { --sc: var(--c-green); } .state.r { --sc: var(--c-red); }
+      .arrow { color: var(--muted); font-size: 20px; font-weight: 700; }
+
+      /* ── 루프(순환 흐름) ── */
+      .loop { margin: 14px 0 6px; }
+      .loop-track { display: flex; align-items: stretch; }
+      .lnode { flex: 1; background: var(--surface); border: 1.5px solid var(--lc, var(--c-gray)); border-radius: 14px; padding: 12px 10px; text-align: center; box-shadow: var(--shadow-sm); min-width: 0; }
+      .lnode i { font-style: normal; font-size: 20px; display: block; margin-bottom: 4px; }
+      .lnode b { display: block; font-size: 14px; }
+      .lnode span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+      .lnode.e { --lc: var(--c-amber); } .lnode.j { --lc: var(--c-blue); }
+      .lnode.o { --lc: var(--c-green); } .lnode.m { --lc: var(--c-violet); }
+      .larr { flex: none; align-self: center; color: var(--muted); font-size: 17px; font-weight: 700; padding: 0 7px; }
+      .loop-return { position: relative; height: 42px; margin: 0 48px; border: 2px dashed #c9c4b4; border-top: none; border-radius: 0 0 16px 16px; }
+      .loop-return::before { content: "▲"; position: absolute; left: -9px; top: -12px; font-size: 13px; color: #b3ad99; }
+      .loop-return span { position: absolute; left: 50%; bottom: -11px; transform: translateX(-50%); background: var(--bg); padding: 2px 12px; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+
+      /* ── Before/After 대비 ── */
+      .versus { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .vs { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow-sm); }
+      .vs .vlabel { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .06em; padding: 3px 10px; border-radius: 6px; margin-bottom: 9px; }
+      .vs.before { border-top: 4px solid var(--c-gray); } .vs.before .vlabel { background: #eef1f5; color: #5a6474; }
+      .vs.after { border-top: 4px solid var(--primary); } .vs.after .vlabel { background: var(--primary-soft); color: var(--primary); }
+      .vs p { margin: 0; font-size: 14px; color: var(--ink-soft); } .vs b { color: var(--ink); }
+
+      /* ── 인터랙티브 데모 ── */
+      .demo { display: grid; grid-template-columns: 280px 1fr; gap: 14px; align-items: start; }
+      .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-sm); padding: 16px 18px; }
+      .ptitle { font-size: 11.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+      .ctl { margin-bottom: 15px; }
+      .ctl:last-child { margin-bottom: 0; }
+      .ctl .clabel { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+      .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+      .stepper button { width: 34px; height: 34px; border: none; background: var(--surface-2); font-size: 17px; font-weight: 700; cursor: pointer; color: var(--ink-soft); font-family: inherit; }
+      .stepper button:hover { background: var(--line-soft); }
+      .stepper .val { width: 58px; text-align: center; font-weight: 800; font-size: 15px; }
+      .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+      .seg button { padding: 7px 12px; border: none; background: var(--surface-2); font-size: 12.5px; font-weight: 700; cursor: pointer; color: var(--ink-soft); font-family: inherit; }
+      .seg button.on { background: var(--ink); color: #fff; }
+      .check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--ink-soft); cursor: pointer; }
+      .check input { margin-top: 3px; accent-color: var(--primary); }
+      .hint { font-size: 11.5px; color: var(--muted); margin-top: 7px; line-height: 1.55; }
+      .evt { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--c-amber); background: #fdf6e8; border: 1px solid #f3d9a6; border-radius: 999px; padding: 4px 12px; margin-bottom: 13px; }
+      .demo-count { font-size: 13.5px; font-weight: 700; margin-bottom: 10px; padding: 9px 13px; background: var(--primary-soft); border-radius: 10px; color: var(--primary); }
+      .todos { display: flex; flex-direction: column; gap: 8px; }
+      .todo { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--tc, var(--c-green)); border-radius: 12px; padding: 11px 14px; transition: all .18s ease; }
+      .todo .head { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; }
+      .todo .head .st { width: 20px; text-align: center; flex: none; }
+      .todo .why { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+      .todo.hot { --tc: var(--c-red); background: #fcf2f2; }
+      .todo.off { --tc: #d4d0c4; border-style: dashed; background: var(--surface-2); opacity: .6; }
+      .todo.off .head { color: var(--muted); }
+      .todo.mem { --tc: var(--c-gray); background: var(--surface-2); opacity: .85; }
+      .rc { font-size: 10.5px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); flex: none; }
+      .todo.hot .rc { background: #fbe3e3; color: var(--c-red); }
+
+      /* ── 표 + 반응 칩(상황별 처리 매트릭스) ── */
+      .tscroll { overflow-x: auto; }
+      table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+      table.tbl th, table.tbl td { text-align: left; padding: 10px 13px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+      table.tbl th { background: var(--surface-2); font-weight: 800; font-size: 12.5px; color: var(--ink-soft); }
+      table.tbl tr:last-child td { border-bottom: none; }
+      .rx { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+      .rx.act { background: #e9f7ee; border-color: #bfe6cc; color: #15803d; }
+      .rx.remind { background: #fdf4e3; border-color: #f0dcb0; color: #b45309; }
+      .rx.mute { background: var(--surface-2); border-color: var(--line); color: var(--muted); }
+      .rx.no { background: #fcf2f2; border-color: #e6c9c9; color: var(--c-red); }
+      .rx.close { background: #eef4fd; border-color: #c7d7fb; color: #1d4ed8; }
+
+      /* ── 원칙/미니 카드 그리드 ── */
+      .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+      .pcard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 15px; font-size: 13px; color: var(--ink-soft); box-shadow: var(--shadow-sm); }
+      .pcard b { display: block; font-size: 13.5px; color: var(--ink); margin-bottom: 3px; }
+      .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+      /* ── 목업 해부(annotated mockup) ── */
+      .anatomy { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+      .mockcard { background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); padding: 14px 12px 16px; }
+      .mock-head { display: flex; align-items: center; gap: 8px; padding: 0 6px 10px; }
+      .mock-head .mchip { font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); }
+      .mock-head .mday { font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: #fcf2f2; color: var(--c-red); margin-left: auto; }
+      .zone { position: relative; margin: 10px 4px 0; padding: 10px 13px; border: 1.5px dashed; border-radius: 12px; font-size: 13px; }
+      .zbadge { position: absolute; top: -10px; left: -8px; width: 22px; height: 22px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); background: var(--zc, var(--ink)); }
+      .zone.z1 { border-color: #b9cdf5; background: #f6f9ff; --zc: var(--c-blue); }
+      .zone.z2 { border-color: #d8c8f2; background: #faf7ff; --zc: var(--c-violet); }
+      .zone.z3 { border-color: #eed9ae; background: #fdfaf1; --zc: var(--c-amber); }
+      .zone.z4 { border-color: #bfe6cc; background: #f4fbf6; --zc: var(--c-green); }
+      .zone .zt { font-weight: 800; font-size: 14.5px; }
+      .zone .zs { color: var(--ink-soft); font-size: 12.5px; }
+      .mock-btn { display: inline-block; background: var(--primary); color: #fff; font-weight: 800; font-size: 13px; border-radius: 10px; padding: 8px 16px; margin-top: 4px; }
+      .anno { display: grid; grid-template-columns: 26px 1fr; gap: 10px; padding: 11px 0; border-bottom: 1px dashed var(--line); align-items: start; }
+      .anno:last-child { border-bottom: none; }
+      .anno .ab { width: 22px; height: 22px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+      .anno b { font-size: 14px; display: block; }
+      .anno span { font-size: 13px; color: var(--muted); }
+
+      /* ── 경계선(threshold) ── */
+      .threshold { display: flex; align-items: stretch; margin: 10px 0 14px; }
+      .tz { flex: 1; padding: 15px 14px; text-align: center; border: 1.5px solid var(--line); background: var(--surface); }
+      .tz.safe { border-right: none; border-radius: 14px 0 0 14px; color: var(--ink-soft); }
+      .tz.danger { border-color: #e6c9c9; border-left: none; border-radius: 0 14px 14px 0; background: #fcf2f2; }
+      .tz b { display: block; font-size: 16px; } .tz span { font-size: 12.5px; color: var(--muted); }
+      .tz.danger b { color: var(--c-red); }
+      .tmark { flex: none; width: 56px; display: flex; align-items: center; justify-content: center; background: var(--c-red); color: #fff; font-weight: 800; font-size: 13.5px; border-radius: 12px; z-index: 1; box-shadow: var(--shadow); }
+
+      /* ── 접이식 디테일 ── */
+      details.deep { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); margin-top: 10px; box-shadow: var(--shadow-sm); }
+      details.deep > summary { cursor: pointer; padding: 12px 16px; font-weight: 700; font-size: 13.5px; color: var(--ink-soft); list-style: none; display: flex; align-items: center; gap: 8px; user-select: none; }
+      details.deep > summary::-webkit-details-marker { display: none; }
+      details.deep > summary::before { content: "▸"; color: var(--muted); font-size: 12px; transition: transform .15s; }
+      details.deep[open] > summary::before { transform: rotate(90deg); }
+      details.deep > .body { padding: 2px 16px 15px; font-size: 13.5px; color: var(--ink-soft); }
+      details.deep > .body > :first-child { margin-top: 0; }
+
+      /* ── 콜아웃 / 칩 ── */
+      .callout { border-radius: 12px; padding: 13px 16px; font-size: 14px; border: 1px solid var(--line); background: var(--surface-2); margin: 14px 0 0; }
+      .callout.info { border-color: #c7d7fb; background: #f2f6fe; }
+      .callout.warn { border-color: #f3d9a6; background: #fdf6e8; }
+      .callout.legal { border-color: #e6c9c9; background: #fcf2f2; }
+      .callout .t { font-weight: 800; font-size: 13px; display: block; margin-bottom: 3px; }
+      .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+      .chip { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-soft); }
+      .chip.pri { background: var(--primary-soft); border-color: #d6d6f7; color: var(--primary); }
+      .clabel-s { font-size: 11.5px; font-weight: 800; letter-spacing: .04em; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+
+      .foot { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+      .foot code { font-family: ui-monospace, Menlo, Consolas, monospace; }
+
+      @media (max-width: 720px) {
+        .takes, .versus, .pgrid, .grid3, .demo, .anatomy { grid-template-columns: 1fr; }
+        .hero h1 { font-size: 25px; }
+        .mockcard { max-width: 360px; margin: 0 auto; }
+        .loop-track { flex-direction: column; gap: 4px; }
+        .larr { transform: rotate(90deg); padding: 2px 0; text-align: center; }
+        .loop-return { border: none; height: auto; margin: 8px 0 0; }
+        .loop-return::before { display: none; }
+        .loop-return span { position: static; transform: none; display: block; text-align: center; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 스티키 네비: 요약·챕터·부록. data-spy 가 있는 링크만 스크롤스파이 대상 -->
+    <nav class="nav">
+      <div class="in">
+        <a class="home" href="index.html">← 로직 설명서</a>
+        <span class="sep">·</span>
+        <a href="#tldr" data-spy>요약</a>
+        {{NAV_ITEMS}}
+        <!-- 형식: <a href="#c1" data-spy>1 챕터짧은이름</a> … <a href="#appendix" data-spy>부록</a> -->
+      </div>
+    </nav>
+
+    <div class="wrap">
+      <header class="hero">
+        <span class="kicker">{{DOC_KICKER}}</span>
+        <h1>{{DOC_HEADLINE}}</h1>
+        <p>{{DOC_ONELINER}}</p>
+      </header>
+
+      <!-- TL;DR: 여기까지만 읽어도 핵심이 전달돼야 한다 -->
+      <section id="tldr" class="tldr">
+        <span class="tag">⏱ 30초 요약</span>
+        <p class="one">{{TLDR_SENTENCE}}</p>
+        {{TLDR_DIAGRAM}}
+        <!-- 형식: <div class="flow"> <div class="state a"><b>입력</b><span>…</span></div> <span class="arrow">→</span> … </div> -->
+        <div class="takes">
+          {{TLDR_TAKEAWAYS}}
+          <!-- 형식(3개): <div class="take"><b><span class="n">1</span>제목</b> 한 줄 설명 (§챕터참조)</div> -->
+        </div>
+      </section>
+
+      {{CHAPTERS}}
+      <!-- 챕터 골격:
+      <section id="c1" class="chapter">
+        <h2><span class="badge-num">1</span> 챕터 제목</h2>
+        <p class="cap">캡션 1~2문장. 도식이 주인공, 이 문장은 보조.</p>
+        (주인공 도식/장치 1개 + 필요시 details.deep)
+      </section>
+      -->
+
+      <!-- 부록: 본문에서 강등된 참고자료. 전부 기본 접힘 -->
+      <section id="appendix" class="chapter">
+        <h2><span class="badge-num apx">A</span> 부록 — 참고 자료 · 결정 기록</h2>
+        <p class="cap">본문을 가볍게 유지하기 위해 접어둔 상세 자료입니다. 필요할 때 펼쳐 보세요.</p>
+        {{APPENDIX_BLOCKS}}
+        <!-- 형식: <details class="deep"><summary>A1 · 제목</summary><div class="body">…</div></details> -->
+      </section>
+
+      {{LEGAL_CALLOUT}}
+      <!-- 법적 고지는 접지 않는다. 형식:
+      <div class="callout legal"><span class="t">⚖️ 법적 책임</span> …</div>
+      -->
+
+      <div class="foot">
+        {{SOT_FOOTER}}
+        <!-- 형식: 원본 SoT: <code>docs/….md</code> · 관련: <code>…</code><br />면책 문구 -->
+      </div>
+    </div>
+
+    <script>
+      // 스크롤스파이: data-spy 네비 링크 활성화 (수정 불필요)
+      (function () {
+        var links = Array.prototype.slice.call(document.querySelectorAll(".nav a[data-spy]"));
+        var secs = links
+          .map(function (a) { return document.querySelector(a.getAttribute("href")); })
+          .filter(Boolean);
+        if (!("IntersectionObserver" in window)) return;
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (e) {
+              if (!e.isIntersecting) return;
+              links.forEach(function (l) {
+                l.classList.toggle("on", l.getAttribute("href") === "#" + e.target.id);
+              });
+            });
+          },
+          { rootMargin: "-40% 0px -55% 0px" }
+        );
+        secs.forEach(function (s) { io.observe(s); });
+      })();
+
+      {{DEMO_SCRIPT}}
+      // 인터랙티브 데모가 있으면 여기에 vanilla JS 판정 로직을 넣는다.
+      // 패턴: 상태 객체 → render() 가 .todo 카드의 클래스(off/hot/mem)와 사유(.why)를 갱신.
+    </script>
+  </body>
+</html>
+<!--
+  ════════════════════════════════════════════════════════════════════
+  블록 라이브러리 — 챕터를 조립할 때 골라 쓰는 마크업
+  ════════════════════════════════════════════════════════════════════
+
+  [1] 직선 흐름 .flow  : 단계가 3~5개인 변환/파이프라인
+      <div class="flow">
+        <div class="state a"><b>① 입력</b><span>설명</span></div>
+        <span class="arrow">→</span>
+        <div class="state b"><b>② 처리</b><span>설명</span></div>
+        <span class="arrow">→</span>
+        <div class="state gr"><b>③ 출력</b><span>설명</span></div>
+      </div>
+      색: g(회색) b(파랑) v(보라) a(호박) gr(초록) r(빨강, 위험/경계)
+
+  [2] 순환 루프 .loop  : 반복 사이클(이벤트 루프, 상태 머신 순환)
+      <div class="loop">
+        <div class="loop-track">
+          <div class="lnode e"><i>⚡</i><b>단계</b><span>설명</span></div>
+          <div class="larr">→</div>
+          <div class="lnode j"><i>⚖️</i><b>단계</b><span>설명</span></div>
+          <div class="larr">→</div>
+          <div class="lnode o"><i>📣</i><b>단계</b><span>설명</span></div>
+          <div class="larr">→</div>
+          <div class="lnode m"><i>🧠</i><b>단계</b><span>설명</span></div>
+        </div>
+        <div class="loop-return"><span>되돌아가는 조건 ↺</span></div>
+      </div>
+
+  [3] Before/After .versus : 관점 전환, 정책 변경 대비
+      <div class="versus">
+        <div class="vs before"><span class="vlabel">BEFORE</span><p>…</p></div>
+        <div class="vs after"><span class="vlabel">AFTER</span><p>…</p></div>
+      </div>
+
+  [4] 인터랙티브 데모 .demo : 입력을 바꾸면 출력이 바뀌는 로직 체험
+      <div class="demo">
+        <div class="panel">
+          <div class="ptitle">입력 제목</div>
+          <span class="evt">⚡ 트리거 표시</span>
+          <div class="ctl"><span class="clabel">라벨</span>
+            <div class="stepper"><button onclick="stepN(-1)">−</button><span class="val" id="d-n">6명</span><button onclick="stepN(1)">＋</button></div>
+            <p class="hint">단순화 각주</p>
+          </div>
+          <div class="ctl"><span class="clabel">라벨</span>
+            <div class="seg" id="seg-h"><button data-h="12" onclick="setH(12)">옵션A</button><button data-h="20" class="on" onclick="setH(20)">옵션B</button></div>
+          </div>
+          <div class="ctl"><label class="check"><input type="checkbox" onchange="D.done=this.checked;render()" /> 토글 설명</label></div>
+        </div>
+        <div class="panel">
+          <div class="ptitle">출력 제목</div>
+          <div class="demo-count" id="d-count"></div>
+          <div class="todos">
+            <div class="todo" id="todo-r1">
+              <div class="head"><span class="st">✅</span>할 일 제목<span class="rc">R1</span></div>
+              <div class="why">사유(JS 가 갱신)</div>
+            </div>
+          </div>
+          <p class="note">※ 단순화 면책 문구</p>
+        </div>
+      </div>
+
+  [5] 상황별 반응 매트릭스 : 상황 × 시스템 반응 표 (반응은 .rx 칩으로)
+      <div class="tscroll"><table class="tbl">
+        <thead><tr><th>상황</th><th>채널A</th><th>채널B</th></tr></thead>
+        <tbody><tr><td>상황</td>
+          <td><span class="rx act">📰 실행</span></td>
+          <td><span class="rx no">🚫 안 함</span></td></tr></tbody>
+      </table></div>
+      .rx 변형: act(초록/실행) remind(호박/리마인드) mute(회색/침묵) no(빨강/거부) close(파랑/정리)
+
+  [6] 목업 해부 .anatomy : 실제 UI 카드 목업 + 번호 주석
+      <div class="anatomy">
+        <div class="mockcard">
+          <div class="mock-head"><span class="mchip">라벨</span><span class="mday">D-3</span></div>
+          <div class="zone z1"><span class="zbadge">1</span><div class="zt">핵심 문장</div></div>
+          <div class="zone z2"><span class="zbadge">2</span><div class="zs">근거…</div></div>
+          <div class="zone z3"><span class="zbadge">3</span><div class="zs">예시…</div></div>
+          <div class="zone z4"><span class="zbadge">4</span><span class="mock-btn">CTA 버튼</span></div>
+        </div>
+        <div>
+          <div class="anno"><span class="ab" style="background:var(--c-blue)">1</span><div><b>이름</b><span>설명</span></div></div>
+          … (2~4 반복, 색은 zone 과 맞춤)
+        </div>
+      </div>
+
+  [7] 경계선 .threshold : 임계값을 넘으면 규칙이 바뀌는 지점
+      <div class="threshold">
+        <div class="tz safe"><b>이전 구간</b><span>설명</span></div>
+        <div class="tmark">5명</div>
+        <div class="tz danger"><b>이후 구간</b><span>설명</span></div>
+      </div>
+
+  [8] 접이식 디테일 details.deep : "왜 · 예시 · 법적 가이드" 보조 설명 (기본 접힘)
+      <details class="deep">
+        <summary>🔍 제목 — 왜 이렇게 했나</summary>
+        <div class="body">본문. 표·flow·콜아웃 모두 넣을 수 있다.</div>
+      </details>
+
+  [9] 칩 목록 .chips : 트리거·후보·키워드 나열
+      <div class="clabel-s">라벨</div>
+      <div class="chips"><span class="chip">항목</span><span class="chip pri">강조 항목</span></div>
+-->
