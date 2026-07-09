@@ -1,0 +1,299 @@
+<!-- ============================================================
+  매장비서 목업 프레임 라이브러리 (mockup 스킬 템플릿)
+  - <title> 만 남기고 doctype/html/head/body 는 쓰지 않는다 (Artifact 가 감싼다)
+  - 프레임 안 색상: web/src/app/globals.css 스냅샷(2026-07-09) — 코드가 SoT, 다르면 여기를 갱신
+  - 페이지 크롬: 라이트/다크 대응 · 프레임: 항상 앱 라이트 룩
+  - 사용법: 이 파일을 스크래치패드로 복사 → 예시 섹션을 실제 내용으로 교체
+============================================================ -->
+<title>{주제} 목업 — 매장비서</title>
+<style>
+  /* ---------- 페이지 크롬 토큰 (라이트/다크 + data-theme 오버라이드) ---------- */
+  :root{
+    --ink:#242c27; --sub:#5d6860; --faint:#98a09a;
+    --ground:#eeede5; --panel:#ffffff; --line:#e0ded2; --chip:#f4f2ea;
+    --green:#2f6d4f; --green-ink:#2f6d4f; --green-soft:#e9f0ec;
+    --amber:#8a4b09; --amber-soft:#f6e9d4; --amber-line:#e8d2a9;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#e7ebe7; --sub:#a7b0a8; --faint:#77807a;
+      --ground:#151816; --panel:#1e221f; --line:#2e352f; --chip:#252a26;
+      --green:#8cc3a6; --green-ink:#9fd0b5; --green-soft:#243429;
+      --amber:#d9a45e; --amber-soft:#352a1a; --amber-line:#54401f;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#e7ebe7; --sub:#a7b0a8; --faint:#77807a;
+    --ground:#151816; --panel:#1e221f; --line:#2e352f; --chip:#252a26;
+    --green:#8cc3a6; --green-ink:#9fd0b5; --green-soft:#243429;
+    --amber:#d9a45e; --amber-soft:#352a1a; --amber-line:#54401f;
+  }
+  :root[data-theme="light"]{
+    --ink:#242c27; --sub:#5d6860; --faint:#98a09a;
+    --ground:#eeede5; --panel:#ffffff; --line:#e0ded2; --chip:#f4f2ea;
+    --green:#2f6d4f; --green-ink:#2f6d4f; --green-soft:#e9f0ec;
+    --amber:#8a4b09; --amber-soft:#f6e9d4; --amber-line:#e8d2a9;
+  }
+  *{box-sizing:border-box; margin:0}
+  html{font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif}
+  body{background:var(--ground); color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px; margin:0 auto; padding:56px 28px 96px}
+
+  /* ---------- 페이지 크롬 ---------- */
+  .eyebrow{font-size:12px; font-weight:700; letter-spacing:.14em; color:var(--green-ink); margin-bottom:10px}
+  h1{font-size:clamp(26px,4vw,34px); font-weight:800; letter-spacing:-0.02em; text-wrap:balance}
+  .lede{margin-top:12px; max-width:62ch; color:var(--sub); font-size:15px}
+  .meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px}
+  .meta span{font-size:12px; font-weight:600; padding:5px 12px; border-radius:999px; background:var(--chip); border:1px solid var(--line); color:var(--sub)}
+  .legend{display:flex; flex-wrap:wrap; gap:18px; margin-top:22px; padding:14px 18px; border:1px solid var(--line); border-radius:14px; background:var(--panel); font-size:13px; color:var(--sub)}
+  .legend b{color:var(--ink); font-weight:700}
+  .dot{display:inline-block; width:8px; height:8px; border-radius:99px; margin-right:7px; vertical-align:1px}
+  .dot.a{background:var(--amber)} .dot.g{background:var(--green)}
+
+  section{margin-top:64px}
+  .sec-eyebrow{font-size:12px; font-weight:700; letter-spacing:.14em; color:var(--faint)}
+  h2{font-size:21px; font-weight:800; letter-spacing:-0.01em; margin-top:6px}
+  .sec-note{color:var(--sub); font-size:14px; margin-top:6px; max-width:70ch}
+  .grid{display:flex; flex-wrap:wrap; gap:34px; margin-top:28px; align-items:flex-start}
+  .shot{width:302px}
+  .shot h3{font-size:14px; font-weight:800; margin:14px 2px 2px}
+  .shot .sub{font-size:12.5px; color:var(--sub); margin:0 2px 8px}
+  .notes{list-style:none; padding:0; margin:0 2px; font-size:12px; color:var(--sub)}
+  .notes li{padding:3px 0; display:flex; gap:7px}
+  .notes .dot{flex:none; margin-top:5px}
+
+  /* ---------- 결정 A/B ---------- */
+  .pair{display:flex; flex-wrap:wrap; gap:28px; margin-top:26px; align-items:stretch}
+  .option{width:346px; padding:20px 20px 18px; border:1.5px solid var(--line); border-radius:18px; background:var(--panel)}
+  .option.reco{border-color:var(--green)}
+  .opt-head{display:flex; align-items:center; gap:8px; margin-bottom:14px}
+  .opt-head b{font-size:15px; font-weight:800}
+  .pill{font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; background:var(--green); color:#fff}
+  :root[data-theme="dark"] .pill{color:#16211b}
+  @media (prefers-color-scheme: dark){ .pill{color:#16211b} }
+  :root[data-theme="light"] .pill{color:#fff}
+  .why{margin:14px 2px 0; font-size:12.5px; color:var(--sub)}
+  .why li{margin-left:16px; padding:2px 0}
+
+  footer{margin-top:72px; padding-top:22px; border-top:1px solid var(--line); font-size:13px; color:var(--sub); max-width:72ch}
+
+  /* ---------- 폰 프레임 (앱은 라이트 우선 — 프레임은 항상 앱 라이트 룩) ---------- */
+  .phone{
+    --pbg:oklch(0.964 0.007 97.4); --pcard:#fff; --pink:oklch(0.227 0.006 156.7);
+    --pgreen:oklch(0.485 0.081 160.1); --psec:oklch(0.949 0.009 161.3);
+    --pmut:oklch(0.643 0.017 127); --pfaint:oklch(0.7 0.009 157);
+    --pline:oklch(0.937 0.008 91.5); --pinput:oklch(0.897 0.013 91.5);
+    --pwarn:oklch(0.964 0.023 71.8); --pwarnb:oklch(0.89 0.061 76.6);
+    --pwarnacc:oklch(0.906 0.06 78.5); --pwarnfg:oklch(0.479 0.11 58.4); --pwarnmut:oklch(0.578 0.121 68.1);
+    --pdest:oklch(0.543 0.174 29.7); --pkakao:oklch(0.902 0.188 101.2);
+    width:302px; border-radius:36px; background:var(--pbg); border:1px solid var(--line);
+    box-shadow:0 12px 32px rgb(20 28 22 / 0.10); overflow:hidden; color:var(--pink);
+  }
+  .screen{height:568px; display:flex; flex-direction:column; font-size:12.5px; position:relative}
+  /* 콘텐츠가 길면 프레임별로 style="height:664px" 등 개별 지정 */
+  .sbar{display:flex; justify-content:space-between; padding:10px 20px 2px; font-size:10.5px; font-weight:700; color:var(--pfaint)}
+  .p-body{flex:1; overflow:hidden; padding:6px 16px 0; display:flex; flex-direction:column; gap:9px}
+
+  .p-title{font-size:17px; font-weight:800; letter-spacing:-0.02em; padding:6px 2px 0}   /* PageHeader */
+  .p-back{display:flex; align-items:center; gap:8px; padding:8px 2px 0; font-size:14px; font-weight:800}  /* BackHeader */
+  .p-back svg{color:var(--pmut)}
+
+  .pcard{background:var(--pcard); border:1px solid var(--pline); border-radius:16px; padding:12px 13px}   /* 카드 rounded-lg */
+  .pcard.hero{border-radius:24px; padding:15px 15px 13px}                                                  /* 큰 정보 카드 */
+  .chips{display:flex; gap:6px; overflow:hidden}      /* 줄바꿈 필요 시 style="flex-wrap:wrap" */
+  .chip{flex:none; font-size:11px; font-weight:700; padding:5px 11px; border-radius:999px; background:var(--pcard); border:1px solid var(--pline); color:var(--pmut)}
+  .chip.on{background:var(--pgreen); border-color:var(--pgreen); color:#fff}              /* 액션/선택 칩 */
+  .chip.set{background:var(--psec); border-color:var(--psec); color:var(--pgreen)}        /* 활성 조건 칩 */
+
+  .rowline{display:flex; align-items:center; gap:10px}                                    /* 리스트 행 */
+  .avatar{flex:none; width:34px; height:34px; border-radius:999px; background:var(--psec); color:var(--pgreen); font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center}  /* InitialAvatar */
+  .avatar.amb{background:var(--pwarnacc); color:var(--pwarnfg)}
+  .rmain{flex:1; min-width:0}
+  .rtitle{font-weight:700; font-size:12.5px; display:flex; align-items:center; gap:5px}
+  .rsub{font-size:11px; font-weight:600; color:var(--pfaint); margin-top:1px}
+  .pay{font-weight:800; color:var(--pgreen); font-size:12.5px; white-space:nowrap}        /* 우측 강조 수치 */
+
+  .badge{flex:none; font-size:10px; font-weight:700; padding:3px 8px; border-radius:999px}  /* StatusBadge 3종 */
+  .badge.ok{background:var(--psec); color:var(--pgreen)}
+  .badge.warn{background:var(--pwarn); color:var(--pwarnfg); border:1px solid var(--pwarnb)}  /* 행동 필요 전용 */
+  .badge.mut{background:oklch(0.951 0.008 98.9); color:var(--pmut)}
+  .vbadge{display:inline-flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; color:var(--pgreen); background:var(--psec); border-radius:999px; padding:2px 7px}  /* 인증 미니 배지 */
+
+  .wbanner{display:flex; align-items:center; gap:9px; background:var(--pwarn); border:1px solid var(--pwarnb); border-radius:16px; padding:10px 12px}  /* 주의 배너 */
+  .wicon{flex:none; width:28px; height:28px; border-radius:999px; background:var(--pwarnacc); color:var(--pwarnfg); display:flex; align-items:center; justify-content:center}
+  .wtext{flex:1; font-size:11.5px; font-weight:700; color:var(--pwarnfg)}
+  .wtext small{display:block; font-weight:600; color:var(--pwarnmut); font-size:10.5px}
+
+  .sect{font-size:10.5px; font-weight:700; color:var(--pfaint); letter-spacing:.06em; padding:2px 2px 0}   /* SectionLabel */
+  .kv{display:flex; justify-content:space-between; font-size:11.5px; padding:3px 0}
+  .kv b{font-weight:700}
+  .kv .k{color:var(--pmut); font-weight:600}
+  .hint{font-size:10.5px; color:var(--pfaint); font-weight:600}
+  .hint.green{color:var(--pgreen)}
+  .hint.dest{color:var(--pdest)}                                                          /* 검증 에러 문구 */
+
+  .cta-bar{margin-top:auto; background:var(--pcard); border-top:1px solid var(--pline); padding:10px 16px 14px; display:flex; gap:8px}  /* 하단 고정 CTA */
+  .btn{flex:1; text-align:center; font-size:13px; font-weight:800; padding:11px 0; border-radius:14px; background:var(--pgreen); color:#fff}
+  .btn.ghost{background:var(--pcard); color:var(--pmut); border:1px solid var(--pline); flex:0 0 31%}
+  .btn.kakao{background:var(--pkakao); color:oklch(0.276 0.047 20.5)}
+
+  .tabs{background:var(--pcard); border-top:1px solid var(--pline); display:flex; padding:7px 6px 12px}    /* 하단탭 */
+  .tab{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:9.5px; font-weight:700; color:var(--pfaint)}
+  .tab.on{color:var(--pgreen)}
+
+  .field{display:flex; flex-direction:column; gap:4px}                                    /* 폼 필드 */
+  .field label{font-size:10.5px; font-weight:700; color:var(--pmut)}
+  .input{background:var(--pcard); border:1px solid var(--pinput); border-radius:12px; padding:9px 11px; font-size:12px; font-weight:600; color:var(--pink); display:flex; justify-content:space-between; align-items:center}
+  .input.err{border-color:var(--pdest)}
+  .input .ph{color:var(--pfaint)}                                                         /* placeholder */
+  .daychips{display:flex; gap:5px}                                                        /* 요일 칩 */
+  .day{width:26px; height:26px; border-radius:999px; border:1px solid var(--pline); background:var(--pcard); font-size:10.5px; font-weight:700; color:var(--pfaint); display:flex; align-items:center; justify-content:center}
+  .day.on{background:var(--pgreen); border-color:var(--pgreen); color:#fff}
+
+  .dim{position:absolute; inset:0; background:rgb(0 0 0 / 0.40); display:flex; flex-direction:column; justify-content:flex-end}  /* 바텀시트 오버레이 — 배경 p-body 에 style="opacity:.35" */
+  .sheet{background:var(--pbg); border-radius:22px 22px 0 0; padding:16px 16px 18px; display:flex; flex-direction:column; gap:9px}
+  .grab{width:36px; height:4px; border-radius:99px; background:var(--pinput); margin:0 auto 2px}
+  .sheet h4{font-size:14.5px; font-weight:800; letter-spacing:-0.01em}
+
+  .consent{display:flex; gap:9px; background:var(--pcard); border:1px solid var(--pline); border-radius:14px; padding:11px 12px; font-size:11px; font-weight:600; color:var(--pmut)}  /* 동의 체크 */
+  .consent .cb{flex:none; width:17px; height:17px; border-radius:6px; background:var(--pgreen); color:#fff; display:flex; align-items:center; justify-content:center; margin-top:1px}
+  .consent b{color:var(--pink)}
+
+  .radio{display:flex; align-items:center; gap:9px; background:var(--pcard); border:1.5px solid var(--pline); border-radius:14px; padding:11px 12px; font-size:12px; font-weight:700}  /* 라디오 카드 */
+  .radio.on{border-color:var(--pgreen)}
+  .radio .rd{flex:none; width:15px; height:15px; border-radius:99px; border:1.5px solid var(--pinput)}
+  .radio.on .rd{border:4.5px solid var(--pgreen)}
+  .radio small{display:block; font-size:10.5px; font-weight:600; color:var(--pfaint)}
+
+  .lock{display:flex; align-items:center; gap:9px; border:1px dashed var(--pinput); border-radius:14px; padding:10px 12px; font-size:11px; font-weight:700; color:var(--pfaint)}  /* 점선 잠금 안내 */
+
+  .seg{display:flex; background:var(--psec); border-radius:12px; padding:3px; gap:2px}    /* 세그먼트 컨트롤 */
+  .seg span{flex:1; text-align:center; font-size:10.5px; font-weight:700; padding:6px 0; border-radius:9px; color:var(--pgreen)}
+  .seg span.on{background:var(--pgreen); color:#fff}
+  .tgl{flex:none; width:36px; height:21px; border-radius:99px; background:var(--pgreen); position:relative}  /* 토글(켜짐) */
+  .tgl::after{content:""; position:absolute; right:2.5px; top:2.5px; width:16px; height:16px; border-radius:99px; background:#fff}
+
+  .promo{background:var(--pgreen); border-radius:18px; padding:14px 15px; color:#fff}     /* 프로모션 히어로 */
+  .promo small{display:block; font-size:10.5px; opacity:.85; font-weight:600; margin-top:2px}
+  .promo .fp{display:inline-block; margin-top:9px; background:#fff; color:var(--pgreen); font-size:11px; font-weight:800; border-radius:999px; padding:6px 12px}
+
+  .phone.pc{width:100%; max-width:680px}                                                  /* 데스크톱(lg+) 프레임 */
+  .phone.pc .screen{height:400px; flex-direction:row}
+  .pcnav{width:148px; background:var(--pcard); border-right:1px solid var(--pline); padding:16px 10px; display:flex; flex-direction:column; gap:3px; font-size:11.5px; font-weight:700; color:var(--pmut)}
+  .pcnav span{padding:7px 10px; border-radius:10px}
+  .pcnav span.on{background:var(--psec); color:var(--pgreen)}
+  .pcmain{flex:1; padding:16px; display:flex; flex-direction:column; gap:10px; overflow:hidden}
+  .statrow{display:flex; gap:8px}
+  .stat{flex:1; background:var(--pcard); border:1px solid var(--pline); border-radius:14px; padding:10px 12px}
+  .stat b{font-size:16px; font-weight:800; color:var(--pgreen); display:block}
+  .stat small{font-size:10px; color:var(--pmut); font-weight:600}
+
+  svg{flex:none}
+</style>
+
+<div class="wrap">
+  <!-- ============ 헤더 슬롯 ============ -->
+  <div class="eyebrow">매장비서 — 화면 시안</div>
+  <h1>{주제} 목업 v1</h1>
+  <p class="lede">{근거 PRD·플로우 요약·대기 중 결정을 2~3문장으로}</p>
+  <div class="meta">
+    <span>도메인: {도메인} (PRD-{도메인})</span><span>{모드/단계}</span><span>토큰: globals.css 준수 (라이트 기준)</span>
+  </div>
+  <div class="legend">
+    <span><span class="dot a"></span><b>앰버 표시</b> — 법·정책 제약이 만든 요소</span>
+    <span><span class="dot g"></span><b>그린 표시</b> — 제품·연결 설계 포인트</span>
+  </div>
+
+  <!-- ============ FLOW 섹션 슬롯 (예시 프레임 2종 — 실제 내용으로 교체) ============ -->
+  <section>
+    <div class="sec-eyebrow">FLOW 1</div>
+    <h2>{플로우 이름}</h2>
+    <p class="sec-note">{플로우 한 줄 설명}</p>
+
+    <div class="grid">
+      <!-- 예시 A: 리스트 화면 (탭 루트) -->
+      <div class="shot">
+        <div class="phone"><div class="screen">
+          <div class="sbar"><span>9:41</span><span>●●●</span></div>
+          <div class="p-body">
+            <div class="p-title">화면 제목</div>
+            <div class="chips"><span class="chip on">필터 2</span><span class="chip set">조건 A</span><span class="chip set">조건 B</span></div>
+            <div class="pcard rowline">
+              <div class="avatar">가</div>
+              <div class="rmain"><div class="rtitle">행 제목 <span class="vbadge">✓ 배지</span></div><div class="rsub">보조 설명 · 메타 · 시점</div></div>
+              <span class="badge warn">행동 필요</span>
+            </div>
+            <div class="pcard rowline">
+              <div class="avatar">나</div>
+              <div class="rmain"><div class="rtitle">행 제목</div><div class="rsub">보조 설명</div></div>
+              <div class="pay">11,000</div>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab on">탭1</div><div class="tab">탭2</div><div class="tab">탭3</div>
+          </div>
+        </div></div>
+        <h3>X1 · 화면 이름</h3>
+        <p class="sub">한 줄 설명</p>
+        <ul class="notes">
+          <li><span class="dot a"></span>법·정책 주석 (근거 조항)</li>
+          <li><span class="dot g"></span>설계 포인트 주석</li>
+        </ul>
+      </div>
+
+      <!-- 예시 B: 바텀시트 (배경 흐림 + 시트) -->
+      <div class="shot">
+        <div class="phone"><div class="screen">
+          <div class="sbar"><span>9:41</span><span>●●●</span></div>
+          <div class="p-body" style="opacity:.35">
+            <div class="p-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg>배경 화면</div>
+            <div class="pcard hero"><div class="rtitle">배경 카드</div></div>
+          </div>
+          <div class="dim"><div class="sheet">
+            <div class="grab"></div>
+            <h4>시트 제목</h4>
+            <div class="field"><label>세그먼트</label><div class="seg"><span class="on">선택안</span><span>다른 안</span></div></div>
+            <div class="radio on"><span class="rd"></span><span>라디오 카드<small>보조 설명</small></span></div>
+            <div class="consent"><span class="cb">✓</span><span>동의 문구 — <b>강조</b> 포함</span></div>
+            <div class="btn" style="flex:none">주요 액션</div>
+          </div></div>
+        </div></div>
+        <h3>X2 · 시트 화면</h3>
+        <p class="sub">한 줄 설명</p>
+        <ul class="notes">
+          <li><span class="dot g"></span>설계 포인트</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 결정 A/B 슬롯 ============ -->
+  <section>
+    <div class="sec-eyebrow">결정 1 — {결정 주제}</div>
+    <h2>{A 요약} vs {B 요약}</h2>
+    <p class="sec-note">{무엇과 무엇 사이의 선택인지 한 줄}</p>
+    <div class="pair">
+      <div class="option reco">
+        <div class="opt-head"><b>A안 — {이름}</b><span class="pill">추천</span></div>
+        <div class="phone"><div class="screen" style="height:400px">
+          <div class="sbar"><span>9:41</span><span>●●●</span></div>
+          <div class="p-body"><div class="p-title">A안 미니 프레임</div></div>
+        </div></div>
+        <ul class="why"><li>근거 1 (가장 단순한 안)</li><li>근거 2</li></ul>
+      </div>
+      <div class="option">
+        <div class="opt-head"><b>B안 — {이름}</b></div>
+        <div class="phone"><div class="screen" style="height:400px">
+          <div class="sbar"><span>9:41</span><span>●●●</span></div>
+          <div class="p-body"><div class="p-title">B안 미니 프레임</div></div>
+        </div></div>
+        <ul class="why"><li>장점</li><li>단점·리스크</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ footer 슬롯 (진행 현황 — 갱신 시 여기만) ============ -->
+  <footer>
+    <b>진행 현황 ({날짜})</b> — {채택된 결정 · 구현 상태 · 남은 결정}. 목업의 수치·명칭은 예시이며, 프레임은 globals.css 토큰(라이트 우선)을 따랐습니다.
+  </footer>
+</div>
