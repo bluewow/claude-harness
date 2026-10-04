@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "skill_id": "b985b072-afec-41f6-965b-8d88c934e513",
+  "path": "fire-your-seo-agency",
+  "path_key": "fire-your-seo-agency",
+  "enabled": true,
+  "tags": [
+    "SEO",
+    "검색최적화",
+    "마케팅"
+  ],
+  "source": {
+    "type": "git",
+    "ref": "https://github.com/leopard627/fire-your-seo-agency.git",
+    "subpath": null,
+    "branch": null
+  }
+}
