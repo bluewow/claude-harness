@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "189b77ae-cff0-4de8-b948-3a610ae0a2f1",
+  "path": "skills/product-docs",
+  "path_key": "skills/product-docs",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

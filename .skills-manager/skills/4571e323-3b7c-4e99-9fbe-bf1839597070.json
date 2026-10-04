@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "skill_id": "4571e323-3b7c-4e99-9fbe-bf1839597070",
+  "path": "skills/mockup",
+  "path_key": "skills/mockup",
+  "enabled": true,
+  "tags": [],
+  "source": {
+    "type": "import",
+    "ref": null,
+    "subpath": null,
+    "branch": null
+  }
+}

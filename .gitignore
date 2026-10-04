@@ -1,2 +1,8 @@
 settings.local.json
 .vscode/
+.DS_Store
+Thumbs.db
+*.tmp
+.skills-manager.lock
+__pycache__/
+*.pyc
